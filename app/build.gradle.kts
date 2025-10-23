@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    //hilt
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+//    google-services
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,6 +46,35 @@ android {
 
 dependencies {
 
+    //hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+
+    //hilt navigation
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    //retrofit dep
+    implementation(libs.converter.moshi)
+    implementation(libs.retrofit)
+
+    //datastore
+    implementation(libs.androidx.datastore.preferences)
+
+    //FirebaseBom
+    implementation(platform(libs.firebase.bom)) // Version from your dependencies
+//    implementation(platform(libs.firebase.bom.v3274)) // Replace with the latest BoM version
+
+    //Firebase Authentication
+    implementation(libs.google.firebase.auth.ktx)
+
+//    implementation(libs.firebase.authentication) // Version managed by BoM
+
+//    firebase-auth
+    implementation(libs.google.firebase.auth)
+//    implementation(libs.firebase.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
