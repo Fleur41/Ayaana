@@ -67,13 +67,15 @@ dependencies {
     implementation(platform(libs.firebase.bom)) // Version from your dependencies
 //    implementation(platform(libs.firebase.bom.v3274)) // Replace with the latest BoM version
 
+    implementation(libs.firebase.auth.ktx)
+
     //Firebase Authentication
-    implementation(libs.google.firebase.auth.ktx)
+    //implementation(libs.google.firebase.auth.ktx)
 
 //    implementation(libs.firebase.authentication) // Version managed by BoM
 
 //    firebase-auth
-    implementation(libs.google.firebase.auth)
+    //implementation(libs.google.firebase.auth)
 //    implementation(libs.firebase.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

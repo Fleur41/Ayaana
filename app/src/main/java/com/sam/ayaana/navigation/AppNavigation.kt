@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.play.core.integrity.au
+import com.sam.ayaana.authentication.forgotpassword.ForgotPasswordScreen
 
 @Composable
 fun AppNavigation(
@@ -40,6 +41,9 @@ fun AppNavigation(
                 authViewModel = hiltViewModel(backStackEntry ),
                 onSignUpClick = {
                     navController.navigate(NavigationDestination.SignUp.route)
+                },
+                onForgotPasswordClick = {
+                    navController.navigate(NavigationDestination.ForgotPassword.route)
                 }
             )
         }
@@ -69,6 +73,17 @@ fun AppNavigation(
             HomeScreen()
         }
 
+        composable(
+            route = NavigationDestination.ForgotPassword.route,
+            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+
+            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
+
+        ){
+            ForgotPasswordScreen(
+                onNavigateBack = {navController.popBackStack()}
+            )
+        }
         composable(
             route = NavigationDestination.Splash.route,
             //enterTransition = { slideIntoContainerAnimation() },

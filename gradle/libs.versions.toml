@@ -26,8 +26,8 @@ converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.r
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
 
-google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
-google-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
+#google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
+#google-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

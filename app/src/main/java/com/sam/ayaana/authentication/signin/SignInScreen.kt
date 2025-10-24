@@ -38,19 +38,26 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sam.ayaana.R
 import com.sam.ayaana.authentication.CompanyInfo
 import com.sam.ayaana.authentication.EmailAndPasswordContent
+import com.sam.ayaana.authentication.OrDivider
+import com.sam.ayaana.authentication.SocialLoginButton
 import com.sam.ayaana.authentication.signup.AuthState
 import com.sam.ayaana.authentication.signup.AuthViewModel
+import com.sam.ayaana.ui.theme.ButtonYellow
+import com.sam.ayaana.ui.theme.LightBlue
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
+    authViewModel: AuthViewModel = hiltViewModel(),
     onSignUpClick: () -> Unit,
-    authViewModel: AuthViewModel = hiltViewModel()
+    onForgotPasswordClick: () -> Unit
+
 ) {
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
@@ -75,11 +82,12 @@ fun SignInScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            CompanyInfo(modifier = Modifier.weight(1f))
+            CompanyInfo(modifier = Modifier.weight(2f))
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
+                    .weight(3f)
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 EmailAndPasswordContent(
                     email = email,
@@ -118,11 +126,35 @@ fun SignInScreen(
                         }
 
                         authViewModel.signIn(email.trim(), password.trim())
+                    },
+                    forgotPasswordContent = {
+                        Text(
+                            text = "Forgot Password?",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 16.sp,
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .padding(horizontal = 8.dp)
+                                .clickable {
+                                    Toast.makeText(
+                                        context,
+                                        "Forgot Password Clicked!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    onForgotPasswordClick()
+                                }
+                        )
                     }
                 )
 
-                Box()
-                {
+
+
+                Box(
+                    modifier = Modifier.height(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     if(authState is AuthState.Error){
                         Text(
                             text = (authState as AuthState.Error).message,
@@ -130,6 +162,21 @@ fun SignInScreen(
                         )
                     }
                 }
+
+                OrDivider(modifier = Modifier.padding(vertical = 24.dp))
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                SocialLoginButton(
+                    icon = R.drawable.ic_google,
+                    text = "Sign in with Google",
+                    onClick = {
+                        Toast.makeText(context, "Google Sign-In Clicked", Toast.LENGTH_SHORT).show()
+                    },
+                    backgroundColor = ButtonYellow
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
 
