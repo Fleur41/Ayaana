@@ -1,9 +1,13 @@
 package com.sam.ayaana.authentication.signin
 
 
-import android.R.attr.contentDescription
+
+import android.app.Activity
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
@@ -40,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import com.sam.ayaana.R
 import com.sam.ayaana.authentication.CompanyInfo
 import com.sam.ayaana.authentication.EmailAndPasswordContent
@@ -48,13 +53,14 @@ import com.sam.ayaana.authentication.SocialLoginButton
 import com.sam.ayaana.authentication.signup.AuthState
 import com.sam.ayaana.authentication.signup.AuthViewModel
 import com.sam.ayaana.ui.theme.ButtonYellow
-import com.sam.ayaana.ui.theme.LightBlue
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
+    onSignInSuccess: () -> Unit,
     onSignUpClick: () -> Unit,
     onForgotPasswordClick: () -> Unit
 
@@ -65,13 +71,40 @@ fun SignInScreen(
     var password by remember { mutableStateOf("") }
     var isEmailError by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
-
-
+    //val scope = rememberCoroutineScope()
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result ->
+            if (result.resultCode == Activity.RESULT_OK){ // -1 corresponds to Activity.RESULT_OK
+                result.data?.let{ intent ->
+                    authViewModel.signInWithGoogleIntent(intent)
+                }
+            } else{
+                Toast.makeText(context, "Google Sign-In cancelled or failed.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
     LaunchedEffect(authState) {
-        if (authState is AuthState.Success) {
-            //we don;t need to explicitly navigate from home screen as it will be taken care of state flow by settings ViewModel
+        when (authState) {
+            //we don't need to explicitly navigate from home screen as it will be taken care of state flow by settings ViewModel
+            is AuthState.Success -> {
+                authViewModel.saveIsAuthenticated(true)
+                onSignInSuccess()
+            }
+            is AuthState.Error -> {
+                val errorMessage = (authState as AuthState.Error).message
+                Toast.makeText(context, "Sign in failed: $errorMessage", Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
         }
     }
+
+//    LaunchedEffect(authState) {
+//        if (authState is AuthState.Success) {
+//            //we don't need to explicitly navigate from home screen as it will be taken care of state flow by settings ViewModel
+//            authViewModel.saveIsAuthenticated(true)
+//        }
+//    }
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Sign In") })
@@ -171,7 +204,18 @@ fun SignInScreen(
                     icon = R.drawable.ic_google,
                     text = "Sign in with Google",
                     onClick = {
-                        Toast.makeText(context, "Google Sign-In Clicked", Toast.LENGTH_SHORT).show()
+                       authViewModel.viewModelScope.launch {
+                           val signInIntentSender = authViewModel.getGoogleAuthClient().signIn()
+                           if(signInIntentSender != null){
+                                googleSignInLauncher.launch(
+                                    IntentSenderRequest.Builder(signInIntentSender).build()
+                                )
+                           } else{
+                               Toast.makeText(context, "Google Sign-In Clicked", Toast.LENGTH_SHORT).show()
+                               Log.d("GoogleSignIn", "signIn() returned null");
+                               
+                           }
+                       }
                     },
                     backgroundColor = ButtonYellow
                 )

@@ -65,7 +65,8 @@ fun EmailAndPasswordContent(
     showConfirmPasswordField: Boolean = false,       // Default to false
     confirmPasswordValue: String = "",               // Value for the confirm password field
     onConfirmPasswordChange: (String) -> Unit = {},  // Handler for confirm password change
-    onConfirmPasswordClear: () -> Unit = {}          // Handler for clearing confirm password
+    onConfirmPasswordClear: () -> Unit = {},         // Handler for clearing confirm password
+    isConfirmPasswordError: Boolean = false,         // Error state for confirm password
 ) {
 
     Column(
@@ -90,16 +91,13 @@ fun EmailAndPasswordContent(
             modifier = modifier.fillMaxWidth(),
             value = password,
             onValueChange = onPasswordChange,
-            placeholderText = "Enter your Password",
+            placeholderText = if (showConfirmPasswordField) "Create new password" else "Enter your Password",
             isPasswordField = true,
             onClear = onPasswordClear,
             isError = isPasswordError
         )
 
-        if (forgotPasswordContent != null){
-            Spacer(modifier = Modifier.height(16.dp))
-            forgotPasswordContent()
-        }
+
         // CONDITIONAL DISPLAY BASED ON THE FLAG
         if (showConfirmPasswordField) {
             VerticalSpacer(8)
@@ -110,9 +108,15 @@ fun EmailAndPasswordContent(
                 placeholderText = "Confirm your Password",
                 isPasswordField = true, // Assuming CustomTextField handles this
                 onClear = onConfirmPasswordClear,
-                isError = isPasswordError
+                isError = isConfirmPasswordError
             )
         }
+
+        if (forgotPasswordContent != null){
+            Spacer(modifier = Modifier.height(16.dp))
+            forgotPasswordContent()
+        }
+
         VerticalSpacer(12)
         Button(
             modifier = modifier.fillMaxWidth(),

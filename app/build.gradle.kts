@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "com.sam.ayaana"
-        minSdk = 34
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -42,12 +44,16 @@ android {
     buildFeatures {
         compose = true
     }
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.5.4"  // ADD THIS LINE
+//    }
 }
 
 dependencies {
 
     //hilt
     implementation(libs.hilt.android)
+    implementation(libs.generativeai)
     ksp(libs.hilt.android.compiler)
 
     //navigation
@@ -65,18 +71,35 @@ dependencies {
 
     //FirebaseBom
     implementation(platform(libs.firebase.bom)) // Version from your dependencies
-//    implementation(platform(libs.firebase.bom.v3274)) // Replace with the latest BoM version
 
-    implementation(libs.firebase.auth.ktx)
+    //Coil
+    implementation(libs.coil.compose)
 
     //Firebase Authentication
-    //implementation(libs.google.firebase.auth.ktx)
+    implementation(libs.firebase.auth.ktx)
 
-//    implementation(libs.firebase.authentication) // Version managed by BoM
+    //Google Sign-In
+    implementation(libs.play.services.auth)
 
-//    firebase-auth
-    //implementation(libs.google.firebase.auth)
-//    implementation(libs.firebase.auth)
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.paging)
+
+    // Retrofit & Networking with Moshi
+    implementation(libs.retrofit)
+    implementation(libs.converter.moshi)
+    ksp(libs.moshi.kotlin.codegen)
+
+    //pagination
+    implementation (libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
+    //material-icons
+    implementation(libs.androidx.compose.material.icons.extended)
+
+    //    implementation(libs.firebase.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

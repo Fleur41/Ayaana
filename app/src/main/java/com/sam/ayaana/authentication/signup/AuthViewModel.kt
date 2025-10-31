@@ -1,9 +1,11 @@
 package com.sam.ayaana.authentication.signup
 
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sam.ayaana.authentication.AuthRepository
+import com.sam.ayaana.authentication.GoogleAuthUiClient
 import com.sam.ayaana.datastore.DatastoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -17,7 +19,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val datastoreRepository: DatastoreRepository
+    private val datastoreRepository: DatastoreRepository,
+    private val googleAuthUiClient: GoogleAuthUiClient
 ) : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> get() = _authState.asStateFlow()
@@ -70,9 +73,29 @@ class AuthViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        Log.d("TAG", "Clearing an instance of ${this::class.simpleName}");
-
+        Log.d("TAG", "Clearing an instance of ${this::class.simpleName}")
         super.onCleared()
+    }
+
+    fun signInWithGoogleIntent(intent: Intent){
+        viewModelScope.launch(Dispatchers.IO) {
+            _authState.value = AuthState.Loading
+            val result = googleAuthUiClient.signInWithIntent(intent)
+            // If Google Sign-In is successful, save authentication state
+            if (result is AuthState.Success){
+                saveIsAuthenticated(true)
+                Log.d("GoogleSignIn", "Google Sign-In successful, authentication state saved")
+            }
+//            else {
+//                Log.e("GoogleSignIn", "Google Sign-In failed: ${(result as? AuthState.Error)?.message}")
+//            }
+            _authState.value = result
+        }
+    }
+
+    // --- You can also add a helper function to get the client ---
+    fun getGoogleAuthClient(): GoogleAuthUiClient {
+        return googleAuthUiClient
     }
 
 }

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "757809082890",
+    "project_id": "ayaana-30365",
+    "storage_bucket": "ayaana-30365.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757809082890:android:67b1262ba909d40c0965f3",
+        "android_client_info": {
+          "package_name": "com.sam.ayaana"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "757809082890-g4p168ogi8nveeo3p75gnds20g80ilc2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sam.ayaana",
+            "certificate_hash": "86d976d1e748a95ca75d0cfc40b72dcc2f639541"
+          }
+        },
+        {
+          "client_id": "757809082890-47pu2m1jff6cd9qrfj01v1qdep3ao04n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPzyDmLfC_VsJuaA2TKD94xPqmPBtVyDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "757809082890-47pu2m1jff6cd9qrfj01v1qdep3ao04n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

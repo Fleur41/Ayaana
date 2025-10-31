@@ -74,7 +74,7 @@ fun ForgotPasswordScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -96,7 +96,7 @@ fun ForgotPasswordScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             EmailAndPasswordContent(
-
+                showEmailField = false,
                 password = newPassword,
                 onPasswordChange = {newPassword = it},
                 confirmPasswordValue = confirmPassword,
