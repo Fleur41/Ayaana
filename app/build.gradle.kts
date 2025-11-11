@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.implementation
+import org.gradle.kotlin.dsl.ksp
 
 plugins {
     alias(libs.plugins.android.application)
@@ -44,10 +45,9 @@ android {
     buildFeatures {
         compose = true
     }
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.4"  // ADD THIS LINE
-//    }
+
 }
+
 
 dependencies {
 
@@ -90,7 +90,9 @@ dependencies {
     // Retrofit & Networking with Moshi
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
+    implementation(libs.okhttp.logging.interceptor)
     ksp(libs.moshi.kotlin.codegen)
+    // ksp(libs.moshi.kotlin.codegen.ksp)
 
     //pagination
     implementation (libs.androidx.paging.runtime)
@@ -115,4 +117,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+configurations.all {
+    resolutionStrategy {
+        force(
+            "com.squareup.moshi:moshi:1.15.1",
+            "com.squareup.moshi:moshi-kotlin:1.15.1"
+        )
+    }
 }

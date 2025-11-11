@@ -13,17 +13,16 @@ interface PostDao {
     fun getPosts(): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM posts WHERE userId = :userId ORDER BY timestamp DESC")
-    fun getPostsByUser(userId: String): Flow<List<PostEntity>> // Fixed method name
+    fun getPostsByUser(userId: String): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM posts WHERE type = 'ORIGINAL' ORDER BY likes DESC LIMIT 50")
-    fun getExplorePosts(): Flow<List<PostEntity>> // REMOVED suspend modifier
+    fun getExplorePosts(): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM posts WHERE id = :postId")
     fun getPostById(postId: String): Flow<PostEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPost(post: PostEntity) // ADDED single post insertion
-
+    suspend fun insertPost(post: PostEntity)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPosts(posts: List<PostEntity>)
 
