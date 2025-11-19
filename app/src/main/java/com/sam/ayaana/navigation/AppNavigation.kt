@@ -14,7 +14,11 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sam.ayaana.authentication.forgotpassword.ForgotPasswordScreen
+import com.sam.ayaana.presentation.screens.chat.ChatScreen
 import com.sam.ayaana.presentation.screens.home.HomeScreen
+import com.sam.ayaana.presentation.screens.profile.ProfileScreen
+import com.sam.ayaana.presentation.screens.reels.ReelsScreen
+import com.sam.ayaana.presentation.screens.search.SearchScreen
 
 @Composable
 fun AppNavigation(
@@ -74,7 +78,9 @@ fun AppNavigation(
             exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
 
         ){
-            HomeScreen(navController)
+            HomeScreen(
+                navController = navController,
+            )
         }
 
         composable(
@@ -88,6 +94,47 @@ fun AppNavigation(
                 onNavigateBack = {navController.popBackStack()}
             )
         }
+
+        composable(
+            route = NavigationDestination.Reels.route,
+            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+
+            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
+
+        ){
+            ReelsScreen(navController = navController)
+        }
+
+        composable(
+            route = NavigationDestination.Chat.route,
+            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+
+            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
+
+        ){
+            ChatScreen(navController = navController)
+        }
+
+        composable(
+            route = NavigationDestination.Profile.route,
+            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+
+            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
+
+        ){
+            ProfileScreen(navController = navController)
+        }
+
+        composable(
+            route = NavigationDestination.Search.route,
+            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+
+            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
+
+        ){
+            SearchScreen(navController = navController)
+        }
+
         composable(
             route = NavigationDestination.Splash.route,
             //enterTransition = { slideIntoContainerAnimation() },

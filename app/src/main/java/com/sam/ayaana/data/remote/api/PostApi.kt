@@ -27,7 +27,7 @@ interface PostApi {
 
     @GET("posts/user/{userId}")
     suspend fun getUserPosts(
-        @Path("userId") userId: String, // ← FIXED: Changed @Query to @Path
+        @Path("userId") userId: String,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20
     ): ApiResponse<List<PostResponse>>
@@ -66,4 +66,21 @@ interface PostApi {
     suspend fun deletePost(
         @Path("postId") postId: String
     ): ApiResponse<Boolean>
+
+    // NEW: Save functionality endpoints
+    @POST("posts/{postId}/save")
+    suspend fun savePost(
+        @Path("postId") postId: String
+    ): ApiResponse<Boolean>
+
+    @DELETE("posts/{postId}/save")
+    suspend fun unsavePost(
+        @Path("postId") postId: String
+    ): ApiResponse<Boolean>
+
+    @GET("posts/saved")
+    suspend fun getSavedPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20
+    ): ApiResponse<List<PostResponse>>
 }

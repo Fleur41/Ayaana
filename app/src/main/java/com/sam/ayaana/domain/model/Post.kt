@@ -16,7 +16,8 @@ data class Post(
     val timestamp: Long,
     val location: String? = null,
     val originalPost: Post? = null, // For reposts
-    val type: PostType = PostType.ORIGINAL
+    val type: PostType = PostType.ORIGINAL,
+    val videoUrl: String? = null
 )
 
 enum class PostType {

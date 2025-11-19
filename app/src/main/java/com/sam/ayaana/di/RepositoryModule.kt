@@ -35,6 +35,4 @@ abstract class RepositoryModule {
     @Binds
     abstract fun bindSocialAuthRepository(impl: SocialAuthRepositoryImpl): ISocialAuthRepository
 
-
-
 }

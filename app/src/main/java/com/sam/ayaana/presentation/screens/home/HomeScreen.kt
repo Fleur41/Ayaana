@@ -1,13 +1,11 @@
 package com.sam.ayaana.presentation.screens.home
 
 
-import android.R.attr.end
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,19 +27,9 @@ import com.sam.ayaana.R
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -56,19 +44,32 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
+import com.sam.ayaana.presentation.component.homesection.PostsSection
 import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController? = null,
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavHostController? = null,
     onDetailClick: () -> Unit = {}
 ) {
-    var selectedItem by remember { mutableIntStateOf(0) }
+
     var hasProfilePicture by remember { mutableStateOf(false) }
+    val currentRoute = if (navController != null) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        navBackStackEntry?.destination?.route
+    } else {
+        "home" // Default route for previews
+    }
+
+
     Scaffold(
         topBar = {
             InstagramTopView()
@@ -82,18 +83,18 @@ fun HomeScreen(
                 NavigationBarItem(
                     icon = {
                         Icon(
-                            painter = painterResource(id = if (selectedItem == 0) R.drawable.ic_home_filled else R.drawable.ic_home_outlined),
+                            painter = painterResource(id = if (currentRoute == "home") R.drawable.ic_home_filled else R.drawable.ic_home_outlined),
                             contentDescription = "Home",
-                            tint = if (selectedItem == 0) Color.White else Color.Gray
+                            tint = if (currentRoute == "home") Color.White else Color.Gray
                         )
                     },
                     label = {
                         Text(text = "", fontSize = 0.sp)
                     },
-                    selected = selectedItem == 0,
+                    selected = currentRoute == "home",
                     onClick = {
-                        selectedItem = 0
-                        //navController?.navigate("home")
+                        //selectedItem = 0
+                        navController?.navigate("home")
                     }
                 )
 
@@ -101,18 +102,18 @@ fun HomeScreen(
                 NavigationBarItem(
                     icon = {
                         Icon(
-                            painter = painterResource(id = if (selectedItem == 1) R.drawable.ic_reels_filled else R.drawable.ic_reels_outlined),
+                            painter = painterResource(id = if (currentRoute == "reels") R.drawable.ic_reels_filled else R.drawable.ic_reels_outlined),
                             contentDescription = "Reels",
-                            tint = if (selectedItem == 1) Color.White else Color.Gray
+                            tint = if (currentRoute == "reels") Color.White else Color.Gray
                         )
                     },
                     label = {
                         Text(text = "", fontSize = 0.sp)
                     },
-                    selected = selectedItem == 1,
+                    selected = currentRoute == "reels",
                     onClick = {
-                        selectedItem = 1
-                        //navController?.navigate("reels")
+                        //selectedItem = 1
+                        navController?.navigate("reels")
                     }
                 )
 
@@ -120,18 +121,18 @@ fun HomeScreen(
                 NavigationBarItem(
                     icon = {
                         Icon(
-                            painter = painterResource(id = if (selectedItem == 2) R.drawable.ic_chat_filled else R.drawable.ic_chat_outlined),
+                            painter = painterResource(id = if (currentRoute == "chat") R.drawable.ic_chat_filled else R.drawable.ic_chat_outlined),
                             contentDescription = "Chat",
-                            tint = if (selectedItem == 2) Color.White else Color.Gray
+                            tint = if (currentRoute == "chat") Color.White else Color.Gray
                         )
                     },
                     label = {
                         Text(text = "", fontSize = 0.sp)
                     },
-                    selected = selectedItem == 2,
+                    selected = currentRoute == "chat",
                     onClick = {
-                        selectedItem = 2
-                        //navController?.navigate("chat")
+                        //selectedItem = 2
+                        navController?.navigate("chat")
                     }
                 )
 
@@ -139,18 +140,18 @@ fun HomeScreen(
                 NavigationBarItem(
                     icon = {
                         Icon(
-                            painter = painterResource(id = if (selectedItem == 3) R.drawable.ic_search_filled else R.drawable.ic_search_outlined),
+                            painter = painterResource(id = if (currentRoute == "search") R.drawable.ic_search_filled else R.drawable.ic_search_outlined),
                             contentDescription = "Search",
-                            tint = if (selectedItem == 3) Color.White else Color.Gray
+                            tint = if (currentRoute == "search") Color.White else Color.Gray
                         )
                     },
                     label = {
                         Text(text = "", fontSize = 0.sp)
                     },
-                    selected = selectedItem == 3,
+                    selected = currentRoute == "search",
                     onClick = {
-                        selectedItem = 3
-                        //navController?.navigate("search")
+                        //selectedItem = 3
+                        navController?.navigate("search")
                     }
                 )
 
@@ -176,19 +177,19 @@ fun HomeScreen(
                         } else {
                             // Default person icon when no profile picture
                             Icon(
-                                painter = painterResource(id = if (selectedItem == 4) R.drawable.ic_profile_filled else R.drawable.ic_profile_outlined),
+                                painter = painterResource(id = if (currentRoute == "profile") R.drawable.ic_profile_filled else R.drawable.ic_profile_outlined),
                                 contentDescription = "Profile",
-                                tint = if (selectedItem == 4) Color.White else Color.Gray
+                                tint = if (currentRoute == "profile") Color.White else Color.Gray
                             )
                         }
                     },
                     label = {
                         Text(text = "", fontSize = 0.sp)
                     },
-                    selected = selectedItem == 4,
+                    selected = currentRoute == "profile",
                     onClick = {
-                        selectedItem = 4
-                        //navController?.navigate("profile")
+                        //selectedItem = 4
+                        navController?.navigate("profile")
                     }
                 )
             }
@@ -200,7 +201,6 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(Color.White),
-            //verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -211,15 +211,44 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            PostsSection(
+                viewModel = viewModel,
+                onProfileClick = { userId ->
+                    navController?.navigate("profile/$userId")
+                },
+                onLikeClick = {postId, isCurrentlyLiked ->
+                    viewModel.toggleLike(postId, isCurrentlyLiked)
+//                    viewModel.likePost(postId)
+                },
+                onCommentClick = {postId ->
+                    // Navigate to comments screen
+                    // navController?.navigate("comments/$postId")
+                    println("Opening comments for post: $postId")
+                },
+                onShareClick = {postId ->
+                    viewModel.sharePost(postId)
+                },
+                onRepostClick = { postId, isCurrentlyReposted ->
+                    viewModel.toggleRepost(postId, isCurrentlyReposted)
+
+                },
+                onMoreOptionsClick = {postId ->
+                    viewModel.showMoreOptions(postId)
+                },
+                onSaveClick = {postId ->
+                    viewModel.savePost(postId)
+                }
+
+            )
             // Temporary placeholder for posts
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Posts feed will be here")
-            }
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .weight(1f),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text("Posts feed will be here")
+//            }
 
         }
     }
@@ -510,25 +539,6 @@ fun UserStoryItem(
                     }
                 }
             }
-            // ADDED: New inner Box to handle the circular clipping for just the story content
-//            Box(
-//                modifier = Modifier
-//                    .size(64.dp)
-//                    .clip(CircleShape) // MOVED: Clipping applied only to the story content, not the add icon
-//                    .background(Color.Black, CircleShape)
-//
-//            ) {
-//                AsyncImage(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .clip(CircleShape),
-//                    model = "https://picsum.photos/id/${itemId + 100}/200/300",
-//                    contentDescription = "Your story",
-//                    contentScale = ContentScale.Crop,
-//                    placeholder = painterResource(R.drawable.placeholder),
-//                    fallback = painterResource(R.drawable.placeholder)
-//                )
-//            }
 
             // Small add icon overlay
 

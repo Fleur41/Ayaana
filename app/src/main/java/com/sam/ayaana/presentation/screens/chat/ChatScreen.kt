@@ -1,4 +1,4 @@
-package com.sam.ayaana.presentation.screens.profile
+package com.sam.ayaana.presentation.screens.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,17 +25,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.sam.ayaana.R
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
+fun ChatScreen(
     navController: NavHostController? = null
 ) {
     val currentRoute = if (navController != null) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         navBackStackEntry?.destination?.route
     } else {
-        "profile"
+        "chat"
     }
 
     Scaffold(
@@ -47,7 +46,7 @@ fun ProfileScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Profile",
+                    text = "Chat",
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
@@ -140,7 +139,7 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Profile Content Will Be Here",
+                    text = "Chat Content Will Be Here",
                     color = Color.Black,
                     fontSize = 18.sp
                 )
@@ -151,6 +150,6 @@ fun ProfileScreen(
 
 @Preview
 @Composable
-private fun ProfileScreenPreview() {
-    ProfileScreen()
+private fun ChatScreenPreview() {
+    ChatScreen()
 }

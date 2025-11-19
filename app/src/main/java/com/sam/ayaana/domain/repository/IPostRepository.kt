@@ -22,6 +22,11 @@ interface IPostRepository{
     suspend fun deleteRepost(postId: String): Result<Boolean>
     suspend fun deletePost(postId: String): Result<Boolean>
     suspend fun getPostById(postId: String): Flow<Result<Post>>
+
+    // ADD THESE FOR SAVE FUNCTIONALITY:
+    suspend fun savePost(postId: String): Result<Boolean>
+    suspend fun unsavePost(postId: String): Result<Boolean>
+    suspend fun getSavedPosts(): Flow<Result<List<Post>>>
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -188,4 +193,49 @@ class PostRepositoryImpl @Inject constructor(
             emit(Result.Error(e.message ?: "Network error"))
         }
     }
+
+    override suspend fun savePost(postId: String): Result<Boolean> {
+        return try {
+            val response = postApi.savePost(postId)
+            if (response.success) {
+                Result.Success(true)
+            } else {
+                Result.Error(response.message ?: "Failed to save post")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error while saving post")
+        }
+    }
+
+    override suspend fun unsavePost(postId: String): Result<Boolean> {
+        return try {
+            val response = postApi.unsavePost(postId)
+            if (response.success) {
+                Result.Success(true)
+            } else {
+                Result.Error(response.message ?: "Failed to unsave post")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error while unsaving post")
+        }
+    }
+
+    override suspend fun getSavedPosts(): Flow<Result<List<Post>>> = flow {
+        emit(Result.Loading)
+        try {
+            val response = postApi.getSavedPosts()
+            if (response.success && response.data != null) {
+                val postEntities = response.data.map { it.toPostEntity() }
+                postDao.insertPosts(postEntities)
+                emit(Result.Success(response.data.map { it.toPost() }))
+            } else {
+                emit(Result.Error(response.message ?: "Failed to load saved posts"))
+            }
+        } catch (e: Exception) {
+            emit(Result.Error(e.message ?: "Network error while loading saved posts"))
+        }
+    }
+//    override suspend fun getSavedPosts(): Flow<Result<List<Post>>> {
+//        TODO("Not yet implemented")
+//    }
 }
