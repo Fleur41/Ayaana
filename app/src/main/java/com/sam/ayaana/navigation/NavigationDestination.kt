@@ -67,4 +67,39 @@ sealed interface NavigationDestination {
             get() = "profile"
     }
 
+    data object CreatePost : NavigationDestination {
+        override val title: String
+            get() = "Create Post"
+        override val route: String
+            get() = "create_post"
+    }
+
+    data object CreatePostDetails : NavigationDestination {
+        override val title: String
+            get() = "Create Post Details"
+        override val route: String
+            get() = "create_post_details"
+    }
+
+    data object CreateStory : NavigationDestination {
+        override val title: String
+            get() = "Create Story"
+        override val route: String
+            get() = "create_story"
+    }
+
+    data object CreateReel : NavigationDestination {
+        override val title: String
+            get() = "Create Reel"
+        override val route: String
+            get() = "create_reel"
+    }
+
+    data object CreateLive : NavigationDestination {
+        override val title: String
+            get() = "Create Live"
+        override val route: String
+            get() = "create_live"
+    }
+
 }

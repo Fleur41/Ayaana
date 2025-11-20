@@ -4,10 +4,14 @@ import com.google.android.gms.common.api.Api
 import com.sam.ayaana.data.remote.model.request.PostRequest
 import com.sam.ayaana.data.remote.model.response.ApiResponse
 import com.sam.ayaana.data.remote.model.response.PostResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -83,4 +87,31 @@ interface PostApi {
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20
     ): ApiResponse<List<PostResponse>>
+
+    @Multipart
+    @POST("posts")
+    suspend fun createPostWithMedia(
+        @Part image: MultipartBody.Part,
+        @Part("caption") caption: RequestBody
+    ): ApiResponse<PostResponse>
+
+    @Multipart
+    @POST("stories")
+    suspend fun createStory(
+        @Part media: MultipartBody.Part
+    ): ApiResponse<PostResponse>
+
+    @Multipart
+    @POST("posts/multiple")
+    suspend fun createPostWithMultipleMedia(
+        @Part media: List<MultipartBody.Part>,
+        @Part("caption") caption: RequestBody
+    ): ApiResponse<PostResponse>
+
+    @Multipart
+    @POST("posts/video")
+    suspend fun createVideoPost(
+        @Part video: MultipartBody.Part,
+        @Part("caption") caption: RequestBody
+    ): ApiResponse<PostResponse>
 }

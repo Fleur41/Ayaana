@@ -94,10 +94,12 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     // ksp(libs.moshi.kotlin.codegen.ksp)
 
-    //pagination
+    // Pagination
     implementation (libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
+    // Accompanist
+    implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
     //material-icons
     implementation(libs.androidx.compose.material.icons.extended)
 

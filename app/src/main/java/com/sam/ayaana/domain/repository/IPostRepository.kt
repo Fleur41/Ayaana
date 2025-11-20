@@ -10,6 +10,11 @@ import com.sam.ayaana.domain.model.Post
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 
 interface IPostRepository{
     suspend fun getFeedPosts(): Flow<Result<List<Post>>>
@@ -27,6 +32,11 @@ interface IPostRepository{
     suspend fun savePost(postId: String): Result<Boolean>
     suspend fun unsavePost(postId: String): Result<Boolean>
     suspend fun getSavedPosts(): Flow<Result<List<Post>>>
+    suspend fun createPostWithMedia(imageFile: File, caption: String): Result<Post>
+    suspend fun createStory(mediaFile: File): Result<Post>
+    suspend fun createReel(videoFile: File, caption: String): Result<Post>
+    suspend fun createPostWithMultipleMedia(mediaFiles: List<File>, caption: String): Result<Post>
+    suspend fun createVideoPost(videoFile: File, caption: String): Result<Post>
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -235,7 +245,121 @@ class PostRepositoryImpl @Inject constructor(
             emit(Result.Error(e.message ?: "Network error while loading saved posts"))
         }
     }
-//    override suspend fun getSavedPosts(): Flow<Result<List<Post>>> {
-//        TODO("Not yet implemented")
-//    }
+
+    override suspend fun createPostWithMedia(
+        imageFile: File,
+        caption: String
+    ): Result<Post> {
+        return try {
+            val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+            val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
+            val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = postApi.createPostWithMedia(imagePart, captionBody)
+            if (response.success && response.data != null) {
+                val postEntity = response.data.toPostEntity()
+                postDao.insertPost(postEntity)
+                Result.Success(response.data.toPost())
+            } else {
+                Result.Error(response.message ?: "Failed to create post with media")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error during media upload")
+        }
+    }
+
+    override suspend fun createStory(mediaFile: File): Result<Post> {
+        return try {
+            val requestFile = mediaFile.asRequestBody("image/*".toMediaTypeOrNull())
+            val mediaPart = MultipartBody.Part.createFormData("media", mediaFile.name, requestFile)
+
+            val response = postApi.createStory(mediaPart)
+            if (response.success && response.data != null) {
+                val postEntity = response.data.toPostEntity()
+                postDao.insertPost(postEntity)
+                Result.Success(response.data.toPost())
+            } else {
+                Result.Error(response.message ?: "Failed to create story")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error during story upload")
+        }
+    }
+
+    override suspend fun createReel(
+        videoFile: File,
+        caption: String
+    ): Result<Post> {
+        return try {
+            val requestFile = videoFile.asRequestBody("video/*".toMediaTypeOrNull())
+            val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, requestFile)
+            val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            // Assuming similar API endpoint for reels
+            val response = postApi.createPostWithMedia(videoPart, captionBody)
+            if (response.success && response.data != null) {
+                val postEntity = response.data.toPostEntity()
+                postDao.insertPost(postEntity)
+                Result.Success(response.data.toPost())
+            } else {
+                Result.Error(response.message ?: "Failed to create reel")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error during reel upload")
+        }
+    }
+
+    override suspend fun createPostWithMultipleMedia(
+        mediaFiles: List<File>,
+        caption: String
+    ): Result<Post> {
+        return try {
+            val mediaParts = mediaFiles.mapIndexed { index, file ->
+                val mimeType = if (file.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif")) {
+                    "image/*"
+                } else {
+                    "video/*"
+                }
+                val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("media_$index", file.name, requestFile)
+            }
+
+            val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            // Assuming your API supports multiple media files
+            val response = postApi.createPostWithMultipleMedia(mediaParts, captionBody)
+            if (response.success && response.data != null) {
+                val postEntity = response.data.toPostEntity()
+                postDao.insertPost(postEntity)
+                Result.Success(response.data.toPost())
+            } else {
+                Result.Error(response.message ?: "Failed to create post with multiple media")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error during multi-media upload")
+        }
+    }
+
+    override suspend fun createVideoPost(
+        videoFile: File,
+        caption: String
+    ): Result<Post> {
+        return try {
+            val requestFile = videoFile.asRequestBody("video/*".toMediaTypeOrNull())
+            val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, requestFile)
+            val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = postApi.createVideoPost(videoPart, captionBody)
+            if (response.success && response.data != null) {
+                val postEntity = response.data.toPostEntity()
+                postDao.insertPost(postEntity)
+                Result.Success(response.data.toPost())
+            } else {
+                Result.Error(response.message ?: "Failed to create video post")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Network error during video upload")
+        }
+    }
+
 }
