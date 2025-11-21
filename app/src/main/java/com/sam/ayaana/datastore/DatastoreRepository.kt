@@ -9,7 +9,8 @@ class DatastoreRepository @Inject constructor(
     val authenticated: Flow<Boolean> = datastoreManager.language
     // New properties from DatastoreManager
     val authToken: Flow<String?> = datastoreManager.authToken
-
+    // Recent searches flow
+    val recentSearches: Flow<List<String>> = datastoreManager.recentSearches
 
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
         datastoreManager.saveIsAuthenticated(authenticated)
@@ -28,9 +29,22 @@ class DatastoreRepository @Inject constructor(
         datastoreManager.clearAuthToken()
     }
 
+    // ADDED: Methods for recent searches
+    suspend fun saveRecentSearches(searches: List<String>) {
+        datastoreManager.saveRecentSearches(searches)
+    }
 
+//    fun getRecentSearches(): List<String> {
+//        return datastoreManager.getRecentSearches()
+//    }
 
+    suspend fun clearRecentSearches() {
+        datastoreManager.clearRecentSearches()
+    }
 
+    suspend fun addRecentSearch(search: String) {
+        datastoreManager.addRecentSearch(search)
+    }
 }
 
 

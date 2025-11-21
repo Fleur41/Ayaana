@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -25,6 +26,7 @@ class DatastoreManager @Inject constructor(
     private val refreshTokenKey = stringPreferencesKey("refresh_token")
     private val userEmailKey = stringPreferencesKey("user_email")
     private val languageKey = booleanPreferencesKey("language")
+    private val recentSearchesKey = stringSetPreferencesKey("recent_searches")
 
     // Flow for language
     val language: Flow<Boolean> = context.dataStore.data.map{ preference ->
@@ -37,7 +39,10 @@ class DatastoreManager @Inject constructor(
         preference[authTokenKey]
     }
 
-
+    // Flow for recent searches
+    val recentSearches: Flow<List<String>> = context.dataStore.data.map { preference ->
+        preference[recentSearchesKey]?.toList() ?: emptyList()
+    }
 
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
         context.dataStore.edit { preference ->
@@ -63,6 +68,38 @@ class DatastoreManager @Inject constructor(
         context.dataStore.edit { preference ->
             preference.remove(authTokenKey)
             preference[authenticatedKey] = false
+        }
+    }
+
+    // ADDED: Methods for recent searches management
+    suspend fun saveRecentSearches(searches: List<String>) {
+        context.dataStore.edit { preference ->
+            preference[recentSearchesKey] = searches.toSet()
+        }
+    }
+
+//    suspend fun getRecentSearches(): List<String> {
+//        return context.dataStore.data.map { preference ->
+//            preference[recentSearchesKey]?.toList() ?: emptyList()
+//        }.first()
+//    }
+
+    suspend fun clearRecentSearches() {
+        context.dataStore.edit { preference ->
+            preference.remove(recentSearchesKey)
+        }
+    }
+
+    suspend fun addRecentSearch(search: String) {
+        context.dataStore.edit { preference ->
+            val currentSearches = preference[recentSearchesKey]?.toMutableSet() ?: mutableSetOf()
+            // Remove if exists to avoid duplicates
+            currentSearches.remove(search)
+            // Add to beginning (by converting to list and back)
+            val updatedList = mutableListOf(search)
+            updatedList.addAll(currentSearches.toList())
+            // Keep only last 10 searches
+            preference[recentSearchesKey] = updatedList.take(10).toSet()
         }
     }
 }
