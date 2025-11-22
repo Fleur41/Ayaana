@@ -1,6 +1,7 @@
 package com.sam.ayaana.navigation
 
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -150,13 +151,16 @@ fun AppNavigation(
 
         composable(
             route = NavigationDestination.CreatePost.route,
-            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+             enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
 
-            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+             exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
         ) { backStackEntry ->
+            Log.e("NAVIGATION_DEBUG", "🎯 STEP 0: CreatePostScreen navigation destination reached!")
+            Log.e("NAVIGATION_DEBUG", "🎯 backStackEntry: $backStackEntry")
+            Log.e("NAVIGATION_DEBUG", "🎯 navController: $navController")
             CreatePostScreen(
                 navController = navController,
-                //viewModel = hiltViewModel(backStackEntry)
+                viewModel = hiltViewModel(backStackEntry)
             )
         }
 

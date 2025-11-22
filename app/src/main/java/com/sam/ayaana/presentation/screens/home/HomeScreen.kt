@@ -74,6 +74,7 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 InstagramStoryView(
+                    navController = navController,
                     hasProfilePicture = hasProfilePicture,
                     onProfilePictureAdded = { hasProfilePicture = true }
                 )
@@ -312,6 +313,7 @@ fun InstagramTopView(
 
 @Composable
 fun InstagramStoryView(
+    navController: NavHostController? = null,
     onStoryClick: (Int) -> Unit = {},
     hasProfilePicture: Boolean = false,
     onProfilePictureAdded: () -> Unit = {}
@@ -363,7 +365,22 @@ fun InstagramStoryView(
                 username = "Your Story",
                 onItemClick = { Log.d("TAG", "UserStoryItem clicked") },
                 hasProfilePicture = hasProfilePicture,
-                onProfilePictureAdded = onProfilePictureAdded
+                onProfilePictureAdded = onProfilePictureAdded,
+//                onAddPhotoClick = {
+//                    Log.e("HOME_DEBUG", "🎯 STEP -1: + Icon clicked in HomeScreen!")
+//                    Log.e("HOME_DEBUG", "🎯 navController: $navController")
+//                    Log.e("HOME_DEBUG", "🎯 Route: ${NavigationDestination.CreatePost.route}")
+//
+//                    try {
+//                        navController?.navigate(NavigationDestination.CreatePost.route)
+//                        Log.e("HOME_DEBUG", "✅ Navigation command sent successfully!")
+//                    } catch (e: Exception) {
+//                        Log.e("HOME_DEBUG", "❌ Navigation failed: ${e.message}", e)
+//                    }
+//                }
+                onAddPhotoClick = {
+                    navController?.navigate(NavigationDestination.CreatePost.route)
+                }
             )
         }
 
@@ -487,16 +504,16 @@ fun UserStoryItem(
         Box(
             modifier = Modifier
                 .size(64.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { onItemClick() }
         ) {
             Box(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
                     .background(Color.Black, CircleShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { onItemClick() } // Added this
             ) {
                 if (hasProfilePicture) {
                     AsyncImage(

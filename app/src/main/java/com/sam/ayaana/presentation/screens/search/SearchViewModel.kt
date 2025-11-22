@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.sam.ayaana.Utils.Result
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 // Search State data class
 data class SearchState(
@@ -30,6 +32,7 @@ data class SearchState(
     val error: String? = null
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val userRepository: IUserRepository,
@@ -173,6 +176,9 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+
+
+    @OptIn(FlowPreview::class)
     private fun setupSearchDebounce() {
         viewModelScope.launch {
             _searchState
@@ -289,185 +295,3 @@ class SearchViewModel @Inject constructor(
         _searchState.value = _searchState.value.copy(error = null)
     }
 }
-//@HiltViewModel
-//class SearchViewModel @Inject constructor(
-//    private val userRepository: IUserRepository,
-//    private val postRepository: IPostRepository,
-//    private val recentSearchesRepository: IRecentSearchesRepository // ADDED: Using real repository
-//) : ViewModel() {
-//
-//    private val _searchState = MutableStateFlow(SearchState())
-//    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
-//
-//    init {
-//        loadRecentSearches()
-//        setupSearchDebounce()
-//    }
-//
-//    fun onSearchQueryChange(query: String) {
-//        _searchState.value = _searchState.value.copy(searchQuery = query)
-//
-//        // UPDATED: Save to recent searches using real repository
-//        if (query.isNotEmpty()) {
-//            viewModelScope.launch {
-//                recentSearchesRepository.addRecentSearch(query)
-//            }
-//        }
-//    }
-//
-//    private fun setupSearchDebounce() {
-//        viewModelScope.launch {
-//            _searchState
-//                .debounce(300)
-//                .distinctUntilChanged { old, new ->
-//                    old.searchQuery == new.searchQuery
-//                }
-//                .filter { it.searchQuery.isNotEmpty() }
-//                .flatMapLatest { state ->
-//                    performSearch(state.searchQuery)
-//                }
-//                .collect { result ->
-//                    _searchState.value = _searchState.value.copy(
-//                        users = result.users,
-//                        posts = result.posts,
-//                        isLoading = false,
-//                        error = result.error
-//                    )
-//                }
-//        }
-//    }
-//
-//    // UPDATED: In SearchViewModel - fix the performSearch function
-//    private fun performSearch(query: String) = flow {
-//        emit(SearchState(isLoading = true))
-//
-//        try {
-//            // FIXED: Using actual repository search with proper error handling
-//            userRepository.searchUsers(query).collect { usersResult ->
-//                when (usersResult) {
-//                    is Result.Success -> {
-//                        // FIXED: For posts, we'll use explore posts and filter locally for now
-//                        // In a real app, you'd have a postRepository.searchPosts(query)
-//                        postRepository.getExplorePosts().collect { postsResult ->
-//                            when (postsResult) {
-//                                is Result.Success -> {
-//                                    // FIXED: Filter posts based on search query
-//                                    val filteredPosts = postsResult.data.filter { post ->
-//                                        post.caption.contains(query, ignoreCase = true) ||
-//                                                post.username.contains(query, ignoreCase = true) ||
-//                                                post.location?.contains(query, ignoreCase = true) == true
-//                                    }
-//
-//                                    emit(SearchState(
-//                                        users = usersResult.data,
-//                                        posts = filteredPosts,
-//                                        isLoading = false
-//                                    ))
-//                                }
-//                                is Result.Error -> {
-//                                    // FIXED: Still show users even if posts fail
-//                                    emit(SearchState(
-//                                        users = usersResult.data,
-//                                        posts = emptyList(),
-//                                        isLoading = false,
-//                                        error = "Posts: ${postsResult.message}"
-//                                    ))
-//                                }
-//                                is Result.Loading -> {
-//                                    // Loading handled by main state
-//                                }
-//                            }
-//                        }
-//                    }
-//                    is Result.Error -> {
-//                        emit(SearchState(
-//                            users = emptyList(),
-//                            posts = emptyList(),
-//                            isLoading = false,
-//                            error = "Users: ${usersResult.message}"
-//                        ))
-//                    }
-//                    is Result.Loading -> {
-//                        // Loading handled by main state
-//                    }
-//                }
-//            }
-//        } catch (e: Exception) {
-//            // FIXED: Better error message
-//            emit(SearchState(error = "Search failed: ${e.message}", isLoading = false))
-//        }
-//    }
-//
-//    // UPDATED: Load recent searches from real DataStore
-//    private fun loadRecentSearches() {
-//        viewModelScope.launch {
-//            recentSearchesRepository.getRecentSearches().collect { searches ->
-//                _searchState.value = _searchState.value.copy(recentSearches = searches)
-//            }
-//        }
-//    }
-//
-//    // UPDATED: Clear recent searches using real repository
-//    fun clearRecentSearches() {
-//        viewModelScope.launch {
-//            recentSearchesRepository.clearRecentSearches()
-//            // State will be updated automatically through the flow
-//        }
-//    }
-//
-//    fun followUser(userId: String) {
-//        viewModelScope.launch {
-//            try {
-//                val result = userRepository.followUser(userId)
-//                when (result) {
-//                    is Result.Success -> {
-//                        val updatedUsers = _searchState.value.users.map { user ->
-//                            if (user.id == userId) {
-//                                user.copy(isFollowing = true)
-//                            } else {
-//                                user
-//                            }
-//                        }
-//                        _searchState.value = _searchState.value.copy(users = updatedUsers)
-//                    }
-//                    is Result.Error -> {
-//                        _searchState.value = _searchState.value.copy(error = result.message)
-//                    }
-//                    else -> {}
-//                }
-//            } catch (e: Exception) {
-//                _searchState.value = _searchState.value.copy(error = "Failed to follow user")
-//            }
-//        }
-//    }
-//
-//    fun unfollowUser(userId: String) {
-//        viewModelScope.launch {
-//            try {
-//                val result = userRepository.unfollowUser(userId)
-//                when (result) {
-//                    is Result.Success -> {
-//                        val updatedUsers = _searchState.value.users.map { user ->
-//                            if (user.id == userId) {
-//                                user.copy(isFollowing = false)
-//                            } else {
-//                                user
-//                            }
-//                        }
-//                        _searchState.value = _searchState.value.copy(users = updatedUsers)
-//                    }
-//                    is Result.Error -> {
-//                        _searchState.value = _searchState.value.copy(error = result.message)
-//                    }
-//                    else -> {}
-//                }
-//            } catch (e: Exception) {
-//                _searchState.value = _searchState.value.copy(error = "Failed to unfollow user")
-//            }
-//        }
-//    }
-//
-//    fun clearError() {
-//        _searchState.value = _searchState.value.copy(error = null)
-//    }
-//}

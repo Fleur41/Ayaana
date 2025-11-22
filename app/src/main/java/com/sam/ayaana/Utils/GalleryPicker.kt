@@ -1,15 +1,14 @@
 package com.sam.ayaana.Utils
 
-
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.LaunchedEffect
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
@@ -26,7 +25,6 @@ object GalleryPicker {
         maxSelection: Int = 1,
         isVideoOnly: Boolean = false
     ): GalleryLauncherResult {
-        val context = LocalContext.current
         val permissionState = rememberPermissionState(
             permission = Manifest.permission.READ_EXTERNAL_STORAGE
         )
@@ -40,8 +38,15 @@ object GalleryPicker {
             }
         }
 
+        // Handle permission request automatically
+        LaunchedEffect(permissionState) {
+            if (!permissionState.status.isGranted) {
+                permissionState.launchPermissionRequest()
+            }
+        }
+
         return GalleryLauncherResult(
-            permissionState = permissionState as State<State<Boolean>>,
+            permissionState = permissionState, // FIXED: No casting needed
             launchGallery = {
                 if (permissionState.status.isGranted) {
                     val intent = createGalleryIntent(maxSelection, isVideoOnly)
@@ -93,7 +98,7 @@ object GalleryPicker {
     }
 }
 
-data class GalleryLauncherResult(
-    val permissionState: State<State<Boolean>>,
+data class GalleryLauncherResult @OptIn(ExperimentalPermissionsApi::class) constructor(
+    val permissionState: PermissionState, // FIXED: Use PermissionState directly
     val launchGallery: () -> Unit
 )

@@ -1,6 +1,7 @@
 package com.sam.ayaana
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -8,10 +9,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.sam.ayaana.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.concurrent.thread
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     val settingsViewModel by viewModels<SettingsViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
