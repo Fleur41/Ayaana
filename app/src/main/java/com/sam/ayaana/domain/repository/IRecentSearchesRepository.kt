@@ -1,8 +1,11 @@
 package com.sam.ayaana.domain.repository
 
+import android.R.attr.data
+import androidx.datastore.dataStore
 import com.sam.ayaana.datastore.DatastoreRepository
 import com.sam.ayaana.domain.repository.IRecentSearchesRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -11,6 +14,7 @@ interface IRecentSearchesRepository {
     fun getRecentSearches(): Flow<List<String>>
     suspend fun clearRecentSearches()
     suspend fun addRecentSearch(search: String)
+    suspend fun removeRecentSearch(search: String)
 }
 
 class RecentSearchesRepositoryImpl @Inject constructor(
@@ -32,5 +36,13 @@ class RecentSearchesRepositoryImpl @Inject constructor(
 
     override suspend fun addRecentSearch(search: String) {
         datastoreRepository.addRecentSearch(search)
+    }
+
+    override suspend fun removeRecentSearch(search: String) {
+        val currentSearches = datastoreRepository.recentSearches.first()
+        val updatedList = currentSearches.toMutableList()
+        updatedList.remove(search)
+        datastoreRepository.saveRecentSearches(updatedList)
+
     }
 }

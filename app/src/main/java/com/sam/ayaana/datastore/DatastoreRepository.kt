@@ -30,9 +30,15 @@ class DatastoreRepository @Inject constructor(
     }
 
     // ADDED: Methods for recent searches
+    // ADDED: Method to remove a single recent search
+    suspend fun removeRecentSearch(search: String) {
+        datastoreManager.removeRecentSearch(search)
+    }
+    // Removed
     suspend fun saveRecentSearches(searches: List<String>) {
         datastoreManager.saveRecentSearches(searches)
     }
+
 
 //    fun getRecentSearches(): List<String> {
 //        return datastoreManager.getRecentSearches()

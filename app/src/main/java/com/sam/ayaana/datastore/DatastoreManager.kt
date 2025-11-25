@@ -72,34 +72,69 @@ class DatastoreManager @Inject constructor(
     }
 
     // ADDED: Methods for recent searches management
-    suspend fun saveRecentSearches(searches: List<String>) {
-        context.dataStore.edit { preference ->
-            preference[recentSearchesKey] = searches.toSet()
-        }
-    }
-
-//    suspend fun getRecentSearches(): List<String> {
-//        return context.dataStore.data.map { preference ->
-//            preference[recentSearchesKey]?.toList() ?: emptyList()
-//        }.first()
-//    }
-
     suspend fun clearRecentSearches() {
         context.dataStore.edit { preference ->
             preference.remove(recentSearchesKey)
         }
     }
 
-    suspend fun addRecentSearch(search: String) {
+    private suspend fun saveRecentSearchesInternal(searches: List<String>) {
         context.dataStore.edit { preference ->
-            val currentSearches = preference[recentSearchesKey]?.toMutableSet() ?: mutableSetOf()
-            // Remove if exists to avoid duplicates
-            currentSearches.remove(search)
-            // Add to beginning (by converting to list and back)
-            val updatedList = mutableListOf(search)
-            updatedList.addAll(currentSearches.toList())
-            // Keep only last 10 searches
-            preference[recentSearchesKey] = updatedList.take(10).toSet()
+            preference[recentSearchesKey] = searches.toSet()
         }
     }
+    suspend fun saveRecentSearches(searches: List<String>) {
+        context.dataStore.edit { preference ->
+            preference[recentSearchesKey] = searches.toSet()
+        }
+    }
+
+
+
+    suspend fun addRecentSearch(search: String) {
+        val currentSearches = context.dataStore.data.map { preference ->
+            preference[recentSearchesKey]?.toList() ?: emptyList()
+        }.first()
+
+        // Remove if exists to avoid duplicates and add to beginning
+        val updatedList = mutableListOf(search)
+        updatedList.addAll(currentSearches.filter { it != search })
+
+        // Keep only last 10 searches
+        val finalList = updatedList.take(10)
+
+        // NOW USING: saveRecentSearchesInternal
+        saveRecentSearches(finalList)
+    }
+//    suspend fun addRecentSearch(search: String) {
+//        context.dataStore.edit { preference ->
+//            val currentSearches = preference[recentSearchesKey]?.toMutableSet() ?: mutableSetOf()
+//            // Remove if exists to avoid duplicates
+//            currentSearches.remove(search)
+//            // Add to beginning (by converting to list and back)
+//            val updatedList = mutableListOf(search)
+//            updatedList.addAll(currentSearches.toList())
+//            // Keep only last 10 searches
+//            preference[recentSearchesKey] = updatedList.take(10).toSet()
+//        }
+//    }
+
+    // ADDED: Method to remove a single recent search
+    suspend fun removeRecentSearch(search: String) {
+        val currentSearches = context.dataStore.data.map { preference ->
+            preference[recentSearchesKey]?.toList() ?: emptyList()
+        }.first()
+
+        val updatedList = currentSearches.filter { it != search }
+        // NOW USING: saveRecentSearchesInternal
+        saveRecentSearches(updatedList)
+    }
+
+//    suspend fun removeRecentSearch(search: String) {
+//        context.dataStore.edit { preference ->
+//            val currentSearches = preference[recentSearchesKey]?.toMutableSet() ?: mutableSetOf()
+//            currentSearches.remove(search)
+//            preference[recentSearchesKey] = currentSearches
+//        }
+//    }
 }

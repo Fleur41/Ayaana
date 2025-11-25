@@ -155,9 +155,9 @@ fun AppNavigation(
 
              exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
         ) { backStackEntry ->
-            Log.e("NAVIGATION_DEBUG", "🎯 STEP 0: CreatePostScreen navigation destination reached!")
-            Log.e("NAVIGATION_DEBUG", "🎯 backStackEntry: $backStackEntry")
-            Log.e("NAVIGATION_DEBUG", "🎯 navController: $navController")
+//            Log.e("NAVIGATION_DEBUG", "🎯 STEP 0: CreatePostScreen navigation destination reached!")
+//            Log.e("NAVIGATION_DEBUG", "🎯 backStackEntry: $backStackEntry")
+//            Log.e("NAVIGATION_DEBUG", "🎯 navController: $navController")
             CreatePostScreen(
                 navController = navController,
                 viewModel = hiltViewModel(backStackEntry)

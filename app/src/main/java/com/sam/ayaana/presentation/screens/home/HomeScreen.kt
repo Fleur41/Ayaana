@@ -45,9 +45,9 @@ fun HomeScreen(
     navController: NavHostController? = null,
     onDetailClick: () -> Unit = {}
 ) {
-    LaunchedEffect(Unit) {
-        Log.e("HOME_DEBUG", "HomeScreen navController: $navController")
-    }
+//    LaunchedEffect(Unit) {
+//        Log.e("HOME_DEBUG", "HomeScreen navController: $navController")
+//    }
 
     var hasProfilePicture by remember { mutableStateOf(false) }
     val currentRoute = if (navController != null) {
