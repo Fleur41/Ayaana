@@ -19,9 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavArgument
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.sam.ayaana.authentication.forgotpassword.ForgotPasswordScreen
-import com.sam.ayaana.presentation.screens.chat.ChatScreen
+import com.sam.ayaana.presentation.screens.chat.ChatDetailScreen
+import com.sam.ayaana.presentation.screens.chat.ChatListScreen
 import com.sam.ayaana.presentation.screens.create.CreatePostScreen
 import com.sam.ayaana.presentation.screens.home.HomeScreen
 import com.sam.ayaana.presentation.screens.profile.ProfileScreen
@@ -126,7 +130,27 @@ fun AppNavigation(
             exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
 
         ){
-            ChatScreen(navController = navController)
+            ChatListScreen(navController = navController)
+        }
+
+        // ChatDetail
+        composable (
+            route = NavigationDestination.ChatDetail.routeWithArgs,
+            arguments = listOf(
+                navArgument(NavigationDestination.ChatDetail.chatIdArg){
+                    type = NavType.StringType
+                }
+            ),
+            enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) }, // This is your new function from Animations.kt
+
+            exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) } // This is your new function from Animations.kt
+
+        ){  backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString(NavigationDestination.ChatDetail.chatIdArg) ?: ""
+            ChatDetailScreen(
+                navController = navController,
+                chatId = chatId
+                )
         }
 
         composable(
@@ -155,9 +179,6 @@ fun AppNavigation(
 
              exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
         ) { backStackEntry ->
-//            Log.e("NAVIGATION_DEBUG", "🎯 STEP 0: CreatePostScreen navigation destination reached!")
-//            Log.e("NAVIGATION_DEBUG", "🎯 backStackEntry: $backStackEntry")
-//            Log.e("NAVIGATION_DEBUG", "🎯 navController: $navController")
             CreatePostScreen(
                 navController = navController,
                 viewModel = hiltViewModel(backStackEntry)

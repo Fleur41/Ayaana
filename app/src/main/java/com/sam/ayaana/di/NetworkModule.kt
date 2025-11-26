@@ -2,6 +2,7 @@ package com.sam.ayaana.di
 
 import com.sam.ayaana.data.remote.api.ActivityApi
 import com.sam.ayaana.data.remote.api.AuthApi
+import com.sam.ayaana.data.remote.api.ChatApi
 import com.sam.ayaana.data.remote.api.PostApi
 import com.sam.ayaana.data.remote.api.UserApi
 import com.sam.ayaana.data.remote.interceptor.AuthInterceptor
@@ -69,4 +70,9 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideActivityApi(retrofit: Retrofit): ActivityApi = retrofit.create(ActivityApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideChatApi(retrofit: Retrofit): ChatApi = retrofit.create(ChatApi::class.java)
+
 }

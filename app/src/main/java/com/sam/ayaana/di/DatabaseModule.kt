@@ -35,4 +35,8 @@ object DatabaseModule {
     @Singleton
     fun provideActivityDao(database: AyaanaDatabase) = database.activityDao()
 
+    @Provides
+    @Singleton
+    fun provideChatDao(database: AyaanaDatabase) = database.chatDao()
+
 }

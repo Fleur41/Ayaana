@@ -2,22 +2,30 @@ package com.sam.ayaana.data.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.sam.ayaana.data.local.dao.ActivityDao
+import com.sam.ayaana.data.local.dao.ChatDao
 import com.sam.ayaana.data.local.dao.PostDao
 import com.sam.ayaana.data.local.dao.UserDao
 import com.sam.ayaana.data.local.entity.ActivityEntity
+import com.sam.ayaana.data.local.entity.ChatEntity
+import com.sam.ayaana.data.local.entity.MessageEntity
 import com.sam.ayaana.data.local.entity.PostEntity
 import com.sam.ayaana.data.local.entity.UserEntity
 
 @Database(
-    entities = [UserEntity::class, PostEntity::class, ActivityEntity::class],
+    entities = [UserEntity::class, PostEntity::class, ActivityEntity::class, ChatEntity::class, MessageEntity::class],
     version = 1,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AyaanaDatabase: RoomDatabase(){
     abstract fun userDao(): UserDao
     abstract fun postDao(): PostDao
     abstract fun activityDao(): ActivityDao
+    abstract fun chatDao(): ChatDao
+
+
 
     companion object{
         const val DATABASE_NAME = "ayaana_database"

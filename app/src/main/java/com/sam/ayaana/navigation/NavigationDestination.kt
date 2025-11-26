@@ -102,4 +102,13 @@ sealed interface NavigationDestination {
             get() = "create_live"
     }
 
+    data object ChatDetail : NavigationDestination {
+        override val title: String
+            get() = "Chat Detail"
+        override val route: String
+            get() = "chat_detail"
+        const val chatIdArg = "chatId"
+        val routeWithArgs = "$route/{$chatIdArg}"
+
+    }
 }

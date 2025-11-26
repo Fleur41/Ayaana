@@ -3,7 +3,9 @@ package com.sam.ayaana.di
 import com.sam.ayaana.authentication.AuthRepository
 import com.sam.ayaana.authentication.AuthRepositoryImpl
 import com.sam.ayaana.domain.repository.ActivityRepositoryImpl
+import com.sam.ayaana.domain.repository.ChatRepositoryImpl
 import com.sam.ayaana.domain.repository.IActivityRepository
+import com.sam.ayaana.domain.repository.IChatRepository
 import com.sam.ayaana.domain.repository.IPostRepository
 import com.sam.ayaana.domain.repository.IRecentSearchesRepository
 import com.sam.ayaana.domain.repository.ISocialAuthRepository
@@ -39,4 +41,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindRecentSearchesRepository(impl: RecentSearchesRepositoryImpl): IRecentSearchesRepository
+
+    @Binds
+    abstract fun bindChatRepository(impl: ChatRepositoryImpl): IChatRepository
 }
