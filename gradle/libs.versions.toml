@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.0"
+cameraView = "1.5.1"
 coilCompose = "2.7.0"
 datastorePreferences = "1.1.7"
 firebaseBom = "33.16.0"
@@ -13,6 +14,7 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.10.01"
+media = "1.7.1"
 moshiKotlin = "1.15.2"
 #moshiKotlin = "1.15.1"
 navigationCompose = "2.9.1"
@@ -29,6 +31,9 @@ uiTest = "1.9.5"
 
 [libraries]
 # AndroidX Core
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraView" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraView" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraView" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
@@ -36,6 +41,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 # Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-media = { module = "androidx.media:media", version.ref = "media" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }

@@ -102,10 +102,23 @@ dependencies {
 
     // Accompanist
     implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    // Camera and permissions
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    // Emoji picker
+//    implementation("com.vanniktech:emoji-google:0.17.0")
+//    implementation("androidx.emoji:emoji:1.2.0")
+
+    // Voice recording
+    implementation(libs.androidx.media)
+
     //material-icons
     implementation(libs.androidx.compose.material.icons.extended)
 
-    //    implementation(libs.firebase.auth)
+    //  implementation(libs.firebase.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

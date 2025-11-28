@@ -37,10 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,8 +46,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.sam.ayaana.R
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.sam.ayaana.Utils.Result
 import com.sam.ayaana.domain.model.Chat
 
@@ -62,6 +58,7 @@ fun ChatListScreen(
     val chatsState by viewModel.chatsState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
+    println("🟡 DEBUG: ChatListScreen recomposed, chatsState: $chatsState")
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     Scaffold(
@@ -177,6 +174,7 @@ fun ChatListScreen(
 
             when (chatsState) {
                 is Result.Loading -> {
+                    println("🟡 DEBUG: Showing Loading state")
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -185,6 +183,7 @@ fun ChatListScreen(
                     }
                 }
                 is Result.Error -> {
+                    println("🟡 DEBUG: Showing Error state")
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -193,7 +192,9 @@ fun ChatListScreen(
                     }
                 }
                 is Result.Success -> {
-                    val chats = (chatsState as Result.Success).data
+                    val chats = (chatsState as Result.Success<List<Chat>>).data
+//                    val chats = (chatsState as Result.Success).data
+                    println("🟡 DEBUG: Showing Success state with ${chats.size} chats")
                     LazyColumn {
                         items(chats) { chat ->
                             ChatListItem(

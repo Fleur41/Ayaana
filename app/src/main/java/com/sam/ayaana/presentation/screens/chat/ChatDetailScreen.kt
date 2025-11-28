@@ -1,7 +1,11 @@
 package com.sam.ayaana.presentation.screens.chat
 
+import android.R.attr.onClick
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +20,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,17 +48,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.sam.ayaana.Utils.Result
 import com.sam.ayaana.domain.model.Message
+import com.sam.ayaana.Utils.EmojiData
+import com.sam.ayaana.domain.model.MessageType
+import com.sam.ayaana.presentation.components.chat.VoiceRecorder
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +79,13 @@ fun ChatDetailScreen(
 ) {
     val selectedChat by viewModel.selectedChat.collectAsState()
     val messagesState by viewModel.messagesState.collectAsState()
+    val isSendingVoice by viewModel.isSendingVoice.collectAsState()
     val lazyListState = rememberLazyListState()
+    val context = LocalContext.current
+
+    var messageText by remember { mutableStateOf("") }
+    var showEmojiPicker by remember { mutableStateOf(false) }
+    var showVoiceRecorder by remember { mutableStateOf(false) }
 
     LaunchedEffect(chatId) {
         if (selectedChat?.id != chatId) {
@@ -115,17 +144,23 @@ fun ChatDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        // Voice call functionality
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:${selectedChat?.userId ?: ""}")
+                        }
+                        context.startActivity(intent)
                     }) {
                         Icon(Icons.Default.Call, contentDescription = "Call")
                     }
+
                     IconButton(onClick = {
-                        // Video call functionality
+                        val intent = Intent("android.media.action.VIDEO_CAMERA")
+                        context.startActivity(intent)
                     }) {
                         Icon(Icons.Default.Videocam, contentDescription = "Video call")
                     }
+
                     IconButton(onClick = {
-                        // More options
+                        // Show more options menu
                     }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
@@ -170,9 +205,72 @@ fun ChatDetailScreen(
                         }
                     }
 
-                    // Chat input bar
+                    // showVoiceRecorder
+                    if (showVoiceRecorder){
+                        VoiceRecorder(
+                            onRecordingComplete = { audioFile ->
+                                viewModel.sendVoiceMessage(audioFile)
+                                showVoiceRecorder = false
+                            },
+                            onCancel = {
+                                showVoiceRecorder = false
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                        )
+                    }
+
+                    // Show loading when sending voice message
+                    if (isSendingVoice) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.LightGray.copy(alpha = 0.3f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Sending voice message...")
+                        }
+                    }
+
+                    // showEmojiPicker
+                    if (showEmojiPicker) {
+                        SimpleEmojiPicker(
+                            onEmojiSelected = { emoji ->
+                                messageText += emoji
+                            },
+                            onClose = { showEmojiPicker = false }
+                        )
+                    }
+
                     ChatInputBar(
-                        onSendMessage = viewModel::sendMessage,
+                        messageText = messageText,
+                        onMessageTextChange = { messageText = it },
+                        onSendMessage = {
+                            if (messageText.isNotBlank()) {
+                                viewModel.sendMessage(messageText)
+                                messageText = ""
+                            }
+                        },
+                        onCameraClick = {
+                            val intent = Intent("android.media.action.IMAGE_CAPTURE")
+                            context.startActivity(intent)
+                        },
+                        onImageClick = {
+                            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                                type = "image/*"
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                            }
+                            context.startActivity(intent)
+                        },
+                        onVoiceClick = {
+                            // Start voice recording
+                            showVoiceRecorder = true
+                        },
+                        onEmojiClick = {
+                            showEmojiPicker = !showEmojiPicker
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
@@ -194,7 +292,6 @@ fun MessageBubble(
             .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalAlignment = if (message.isSentByMe) Alignment.End else Alignment.Start
     ) {
-        // Timestamp
         Text(
             text = "Jul 9, ${if (message.isSentByMe) "12:09 PM" else "12:09 AM"}",
             style = MaterialTheme.typography.bodySmall,
@@ -202,23 +299,33 @@ fun MessageBubble(
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        // Message bubble
-        Box(
-            modifier = Modifier
-                .background(
-                    color = if (message.isSentByMe) Color(0xFF3797F0) else Color(0xFFF0F0F0),
-                    shape = MaterialTheme.shapes.medium
+        when (message.messageType) {
+            MessageType.VOICE -> {
+                // Voice message UI
+                VoiceMessageBubble(
+                    message = message,
+                    isSentByMe = message.isSentByMe
                 )
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            Text(
-                text = message.content,
-                color = if (message.isSentByMe) Color.White else Color.Black,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            }
+            else -> {
+                // Text message UI
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = if (message.isSentByMe) Color(0xFF3797F0) else Color(0xFFF0F0F0),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Text(
+                        text = message.content,
+                        color = if (message.isSentByMe) Color.White else Color.Black,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
         }
 
-        // Status for sent messages
         if (message.isSentByMe) {
             Text(
                 text = "Seen",
@@ -231,40 +338,103 @@ fun MessageBubble(
 }
 
 @Composable
+fun VoiceMessageBubble(
+    message: Message,
+    isSentByMe: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .background(
+                color = if (isSentByMe) Color(0xFF3797F0) else Color(0xFFF0F0F0),
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Mic,
+            contentDescription = "Voice message",
+            tint = if (isSentByMe) Color.White else Color.Black,
+            modifier = Modifier.size(20.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "Voice message",
+            color = if (isSentByMe) Color.White else Color.Black,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "0:15", // You can calculate actual duration
+            color = if (isSentByMe) Color.White.copy(alpha = 0.8f) else Color.Black.copy(alpha = 0.6f),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+
+@Composable
 fun ChatInputBar(
-    onSendMessage: (String) -> Unit,
+    messageText: String,
+    onMessageTextChange: (String) -> Unit,
+    onSendMessage: () -> Unit,
+    onCameraClick: () -> Unit,
+    onImageClick: () -> Unit,
+    onVoiceClick: () -> Unit,
+    onEmojiClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Camera icon
-        Icon(
-            imageVector = Icons.Default.Call, // Temporary - will replace with camera icon
-            contentDescription = "Camera",
+        // Camera icon with purple circle background (Instagram style)
+        Box(
             modifier = Modifier
-                .size(24.dp)
-                .clickable { /* Open camera */ },
-            tint = Color.Gray
-        )
+                .size(40.dp)
+                .background(Color(0xFF833AB4), CircleShape)
+                .noRippleClickable(onClick = onCameraClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.CameraAlt,
+                contentDescription = "Camera",
+                modifier = Modifier.size(20.dp),
+                tint = Color.White
+            )
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Message input
+        // Message input field - separated with proper spacing
         Box(
             modifier = Modifier
                 .weight(1f)
-                .height(40.dp)
+                .height(45.dp)
                 .background(Color.LightGray.copy(alpha = 0.3f), MaterialTheme.shapes.medium)
-                .clickable { /* Open full message input */ },
+                .padding(horizontal = 16.dp),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text(
-                text = "Message...",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
-                modifier = Modifier.padding(horizontal = 16.dp)
+            BasicTextField(
+                value = messageText,
+                onValueChange = onMessageTextChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                decorationBox = { innerTextField ->
+                    if (messageText.isEmpty()) {
+                        Text(
+                            text = "Message...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
+                    innerTextField()
+                }
             )
         }
 
@@ -272,11 +442,11 @@ fun ChatInputBar(
 
         // Voice note icon
         Icon(
-            imageVector = Icons.Default.Videocam, // Temporary - will replace with voice icon
+            imageVector = Icons.Default.Mic,
             contentDescription = "Voice note",
             modifier = Modifier
-                .size(24.dp)
-                .clickable { /* Record voice note */ },
+                .size(28.dp)
+                .noRippleClickable(onClick = onVoiceClick),
             tint = Color.Gray
         )
 
@@ -284,12 +454,135 @@ fun ChatInputBar(
 
         // Image picker icon
         Icon(
-            imageVector = Icons.Default.MoreVert, // Temporary - will replace with gallery icon
-            contentDescription = "Add media",
+            imageVector = Icons.Default.Image,
+            contentDescription = "Add image",
             modifier = Modifier
-                .size(24.dp)
-                .clickable { /* Open gallery */ },
+                .size(28.dp)
+                .noRippleClickable(onClick = onImageClick),
             tint = Color.Gray
         )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Emoji icon
+        Icon(
+            imageVector = Icons.Default.EmojiEmotions,
+            contentDescription = "Emoji",
+            modifier = Modifier
+                .size(28.dp)
+                .noRippleClickable(onClick = onEmojiClick),
+            tint = Color.Gray
+        )
+
+        // Send button appears when text is entered
+        if (messageText.isNotBlank()) {
+            Spacer(modifier = Modifier.width(12.dp))
+            Icon(
+                imageVector = Icons.Default.Send,
+                contentDescription = "Send",
+                modifier = Modifier
+                    .size(28.dp)
+                    .noRippleClickable(onClick = onSendMessage),
+                tint = Color(0xFF3797F0)
+            )
+        }
     }
 }
+
+@Composable
+fun SimpleEmojiPicker(
+    onEmojiSelected: (String) -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var selectedCategory by remember { mutableStateOf(EmojiData.categories.first()) }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(320.dp)
+            .background(Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Emoji",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            EmojiData.categories.forEach { category ->
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            color = if (category == selectedCategory) Color(0xFF3797F0)
+                            else Color.LightGray.copy(alpha = 0.3f),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .noRippleClickable { selectedCategory = category },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = category.icon,
+                        contentDescription = category.name,
+                        tint = if (category == selectedCategory) Color.White else Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
+        Text(
+            text = selectedCategory.name,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        // Fixed LazyVerticalGrid with proper imports
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(8),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            items(selectedCategory.emojis) { emoji ->
+                Text(
+                    text = emoji,
+                    fontSize = 24.sp,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .noRippleClickable { onEmojiSelected(emoji) },
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+// Fixed clickable modifier
+@Composable
+private fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = this.clickable(
+    interactionSource = remember { MutableInteractionSource() },
+    indication = null
+) {
+    onClick()
+}
+
