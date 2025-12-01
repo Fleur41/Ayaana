@@ -1,9 +1,10 @@
 package com.sam.ayaana.presentation.screens.chat
 
-import android.R.attr.onClick
+import com.sam.ayaana.R
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,9 +36,12 @@ import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.Videocam
+import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.VideoCall
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,6 +62,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,6 +70,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.google.android.play.integrity.internal.ac
 import com.sam.ayaana.Utils.Result
 import com.sam.ayaana.domain.model.Message
 import com.sam.ayaana.Utils.EmojiData
@@ -149,21 +157,16 @@ fun ChatDetailScreen(
                         }
                         context.startActivity(intent)
                     }) {
-                        Icon(Icons.Default.Call, contentDescription = "Call")
+                        Icon(Icons.Rounded.Call, contentDescription = "Call")
                     }
 
                     IconButton(onClick = {
                         val intent = Intent("android.media.action.VIDEO_CAMERA")
                         context.startActivity(intent)
                     }) {
-                        Icon(Icons.Default.Videocam, contentDescription = "Video call")
+                        Icon(Icons.Rounded.VideoCall, contentDescription = "Video call")
                     }
 
-                    IconButton(onClick = {
-                        // Show more options menu
-                    }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
-                    }
                 }
             )
         }
@@ -376,7 +379,6 @@ fun VoiceMessageBubble(
     }
 }
 
-
 @Composable
 fun ChatInputBar(
     messageText: String,
@@ -388,106 +390,317 @@ fun ChatInputBar(
     onEmojiClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isTyping = messageText.isNotBlank() // FIX: Track typing state
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Camera icon with purple circle background (Instagram style)
+        // FIX: Use AnimatedContent or animate size changes for smooth transitions
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .background(Color(0xFF833AB4), CircleShape)
-                .noRippleClickable(onClick = onCameraClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.CameraAlt,
-                contentDescription = "Camera",
-                modifier = Modifier.size(20.dp),
-                tint = Color.White
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Message input field - separated with proper spacing
-        Box(
-            modifier = Modifier
-                .weight(1f)
+                .weight(if (isTyping) 0.85f else 1f) // FIX: Weight changes based on typing
                 .height(45.dp)
-                .background(Color.LightGray.copy(alpha = 0.3f), MaterialTheme.shapes.medium)
-                .padding(horizontal = 16.dp),
+                .background(
+                    color = Color(0xFFF0F0F0),
+                    shape = RoundedCornerShape(20.dp)
+                ),
             contentAlignment = Alignment.CenterStart
         ) {
-            BasicTextField(
-                value = messageText,
-                onValueChange = onMessageTextChange,
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                decorationBox = { innerTextField ->
-                    if (messageText.isEmpty()) {
-                        Text(
-                            text = "Message...",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
-                    }
-                    innerTextField()
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Camera icon - always visible inside the rounded container
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color(0xFF833AB4), CircleShape)
+                        .noRippleClickable(onClick = onCameraClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Camera",
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.White
+                    )
                 }
-            )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Message input field
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    BasicTextField(
+                        value = messageText,
+                        onValueChange = onMessageTextChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(vertical = 12.dp),
+                        decorationBox = { innerTextField ->
+                            if (messageText.isEmpty()) {
+                                Text(
+                                    text = "Message...",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                            }
+                            innerTextField()
+                        }
+                    )
+                }
+
+                // FIX: Only show voice/image/emoji when NOT typing
+                if (!isTyping) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        // Voice note icon
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color(0xFF25D366), CircleShape)
+                                .noRippleClickable(onClick = onVoiceClick),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Mic,
+                                contentDescription = "Voice note",
+                                modifier = Modifier.size(18.dp),
+                                tint = Color.White
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        // Image picker icon
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color.Gray.copy(alpha = 0.3f), CircleShape)
+                                .noRippleClickable(onClick = onImageClick),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Image,
+                                contentDescription = "Add image",
+                                modifier = Modifier.size(18.dp),
+                                tint = Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        // Emoji icon
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color.Transparent, CircleShape)
+                                .border(
+                                    width = 1.dp,
+                                    color = Color.Gray.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .noRippleClickable(onClick = onEmojiClick),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_emoji),
+                                contentDescription = "Emoji",
+                                modifier = Modifier.size(20.dp),
+                                tint = Color.Unspecified
+                            )
+                        }
+                    }
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Voice note icon
-        Icon(
-            imageVector = Icons.Default.Mic,
-            contentDescription = "Voice note",
-            modifier = Modifier
-                .size(28.dp)
-                .noRippleClickable(onClick = onVoiceClick),
-            tint = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Image picker icon
-        Icon(
-            imageVector = Icons.Default.Image,
-            contentDescription = "Add image",
-            modifier = Modifier
-                .size(28.dp)
-                .noRippleClickable(onClick = onImageClick),
-            tint = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Emoji icon
-        Icon(
-            imageVector = Icons.Default.EmojiEmotions,
-            contentDescription = "Emoji",
-            modifier = Modifier
-                .size(28.dp)
-                .noRippleClickable(onClick = onEmojiClick),
-            tint = Color.Gray
-        )
-
-        // Send button appears when text is entered
-        if (messageText.isNotBlank()) {
+        // FIX: Send button appears OUTSIDE the rounded container when typing
+        if (isTyping) {
             Spacer(modifier = Modifier.width(12.dp))
-            Icon(
-                imageVector = Icons.Default.Send,
-                contentDescription = "Send",
+            Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(45.dp) // Same height as input bar
+                    .background(Color(0xFF3797F0), CircleShape)
                     .noRippleClickable(onClick = onSendMessage),
-                tint = Color(0xFF3797F0)
-            )
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = "Send",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
+                )
+            }
         }
     }
 }
+//@Composable
+//fun ChatInputBar(
+//    messageText: String,
+//    onMessageTextChange: (String) -> Unit,
+//    onSendMessage: () -> Unit,
+//    onCameraClick: () -> Unit,
+//    onImageClick: () -> Unit,
+//    onVoiceClick: () -> Unit,
+//    onEmojiClick: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    // Instagram-style rounded container for all input elements
+//    Box(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .height(50.dp)
+//            .background(
+//                color = Color.LightGray.copy(alpha = 0.2f),
+//                shape = MaterialTheme.shapes.large
+//            )
+//            .padding(horizontal = 8.dp),
+//        contentAlignment = Alignment.Center
+//    ) {
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            // Camera icon with purple circle background (Instagram style)
+//            Box(
+//                modifier = Modifier
+//                    .size(36.dp)
+//                    .background(Color(0xFF833AB4), CircleShape)
+//                    .noRippleClickable(onClick = onCameraClick),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.CameraAlt,
+//                    contentDescription = "Camera",
+//                    modifier = Modifier.size(18.dp),
+//                    tint = Color.White
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            // Message input field - inside the rounded container
+//            Box(
+//                modifier = Modifier
+//                    .weight(1f)
+//                    .fillMaxHeight(),
+//                contentAlignment = Alignment.CenterStart
+//            ) {
+//                BasicTextField(
+//                    value = messageText,
+//                    onValueChange = onMessageTextChange,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .fillMaxHeight()
+//                        .padding(vertical = 12.dp),
+//
+//                    decorationBox = { innerTextField ->
+//                        if (messageText.isEmpty()) {
+//                            Text(
+//                                text = "Message...",
+//                                style = MaterialTheme.typography.bodyMedium,
+//                                color = Color.Gray
+//                            )
+//                        }
+//                        innerTextField()
+//                    }
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            // Voice note icon with green circle background
+//            Box(
+//                modifier = Modifier
+//                    .size(36.dp)
+//                    .background(Color(0xFF25D366), CircleShape)
+//                    .noRippleClickable(onClick = onVoiceClick),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.Mic,
+//                    contentDescription = "Voice note",
+//                    modifier = Modifier.size(18.dp),
+//                    tint = Color.White
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            // Image picker icon with light gray circle
+//            Box(
+//                modifier = Modifier
+//                    .size(36.dp)
+//                    .background(Color.Gray.copy(alpha = 0.3f), CircleShape)
+//                    .noRippleClickable(onClick = onImageClick),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.Image,
+//                    contentDescription = "Add image",
+//                    modifier = Modifier.size(18.dp),
+//                    tint = Color.Black
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            // Emoji icon with rounded square (Instagram style)
+//            Box(
+//                modifier = Modifier
+//                    .size(36.dp)
+//                    .background(Color.Transparent, CircleShape)
+//                    .border(
+//                        width = 1.dp,
+//                        color = Color.Gray.copy(alpha = 0.5f),
+//                        shape = RoundedCornerShape(8.dp)
+//                    )
+//                    .noRippleClickable(onClick = onEmojiClick),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.ic_emoji),
+//                    contentDescription = "Emoji",
+//                    modifier = Modifier.size(20.dp),
+//                    tint = Color.Unspecified
+//                )
+////
+//            }
+//
+//            // Send button appears when text is entered (Instagram puts it outside the container)
+//            if (messageText.isNotBlank()) {
+//                Spacer(modifier = Modifier.width(12.dp))
+//                Box(
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .background(Color(0xFF3797F0), CircleShape)
+//                        .noRippleClickable(onClick = onSendMessage),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Send,
+//                        contentDescription = "Send",
+//                        modifier = Modifier.size(18.dp),
+//                        tint = Color.White
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
+
 
 @Composable
 fun SimpleEmojiPicker(

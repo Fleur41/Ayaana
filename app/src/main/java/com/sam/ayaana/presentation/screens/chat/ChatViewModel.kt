@@ -7,9 +7,12 @@ import com.sam.ayaana.domain.model.Chat
 import com.sam.ayaana.domain.model.Message
 import com.sam.ayaana.domain.repository.IChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -37,18 +40,101 @@ class ChatViewModel @Inject constructor(
     private val _isSendingVoice = MutableStateFlow(false)
     val isSendingVoice: StateFlow<Boolean> = _isSendingVoice.asStateFlow()
 
-    init {
+    // FIXED: Use MutableList instead of List
+    private var allChats: MutableList<Chat> = mutableListOf()
 
+    private val _filteredChats = MutableStateFlow<List<Chat>>(emptyList())
+    val filteredChats: StateFlow<List<Chat>> = _filteredChats.asStateFlow()
+
+    val hasSearchResults: Boolean
+        get() = _searchQuery.value.isNotEmpty() && _filteredChats.value.isEmpty()
+
+    val searchResultMessage: String
+        get() = if (_searchQuery.value.isNotEmpty() && _filteredChats.value.isEmpty()) {
+            "No results found for \"${_searchQuery.value}\""
+        } else {
+            ""
+        }
+
+    init {
         loadChats()
+        setupSearchDebounce()
     }
 
     fun loadChats() {
-
         viewModelScope.launch {
             chatRepository.getChats().collect { result ->
-                _chatsState.value = result
+                when (result) {
+                    is Result.Success -> {
+                        _chatsState.value = result
+                        // FIXED: Use MutableList operations
+                        allChats.clear()
+                        allChats.addAll(result.data)
+                        _filteredChats.value = result.data
+                        println("✅ DEBUG: Loaded ${allChats.size} chats into allChats")
+                        println("✅ DEBUG: First chat: ${allChats.firstOrNull()?.username}")
+                    }
+                    is Result.Error -> {
+                        _chatsState.value = result
+                        println("❌ DEBUG: Error loading chats: ${result.message}")
+                    }
+                    is Result.Loading -> {
+                        _chatsState.value = result
+                    }
+                }
             }
         }
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun setupSearchDebounce() {
+        viewModelScope.launch {
+            _searchQuery
+                .debounce(300)
+                .distinctUntilChanged()
+                .collect { query ->
+                    println("🔍 DEBUG: Starting search for: '$query', allChats size: ${allChats.size}")
+                    performSearch(query)
+                }
+        }
+    }
+
+    private fun performSearch(query: String) {
+        println("🔍 DEBUG: performSearch called with: '$query'")
+        println("🔍 DEBUG: allChats contains: ${allChats.map { it.username }}")
+
+        if (query.isEmpty()) {
+            _filteredChats.value = allChats
+            println("🔍 DEBUG: Empty query, showing all ${allChats.size} chats")
+        } else {
+            val filtered = allChats.filter { chat ->
+                val matches = chat.username.contains(query, ignoreCase = true) ||
+                        chat.lastMessage.contains(query, ignoreCase = true)
+                if (matches) {
+                    println("✅ DEBUG: Found match: ${chat.username}")
+                }
+                matches
+            }
+            _filteredChats.value = filtered
+            println("🔍 DEBUG: Found ${filtered.size} matches for '$query'")
+        }
+    }
+
+    fun clearSearch() {
+        _searchQuery.value = ""
+        _filteredChats.value = allChats
+        println("🔍 DEBUG: Search cleared, showing all ${allChats.size} chats")
+    }
+
+    fun updateSearchQuery(query: String) {
+        println("🔍 DEBUG: updateSearchQuery called with: '$query'")
+        _searchQuery.value = query
+    }
+
+    // FIXED: Renamed to avoid conflict with searchChats() below
+    fun triggerSearch() {
+        // Manual search trigger if needed
+        performSearch(_searchQuery.value)
     }
 
     fun loadMessages(chatId: String) {
@@ -73,9 +159,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun updateSearchQuery(query: String) {
-        _searchQuery.value = query
-    }
+    // FIXED: Remove duplicate searchChats method (we're using triggerSearch instead)
 
     fun searchChats() {
         viewModelScope.launch {

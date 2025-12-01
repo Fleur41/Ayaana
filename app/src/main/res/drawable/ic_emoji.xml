@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Yellow rounded square background - stands out -->
+    <path
+        android:fillColor="#FFCC00"
+        android:pathData="M5,4h14c0.55,0 1,0.45 1,1v14c0,0.55 -0.45,1 -1,1H5c-0.55,0 -1,-0.45 -1,-1V5c0,-0.55 0.45,-1 1,-1z"
+        android:strokeWidth="0.5"
+        android:strokeColor="#E6B800" />
+
+    <!-- Smiley face - dark gray for good contrast on yellow -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M12,17c2.21,0 4,-1.79 4,-4h-1.5c0,1.38 -1.12,2.5 -2.5,2.5s-2.5,-1.12 -2.5,-2.5H8c0,2.21 1.79,4 4,4z" />
+
+    <!-- Left eye -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M9.5,11c0.83,0 1.5,-0.67 1.5,-1.5s-0.67,-1.5 -1.5,-1.5S8,8.17 8,9s0.67,1.5 1.5,1.5z" />
+
+    <!-- Right eye -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M14.5,11c0.83,0 1.5,-0.67 1.5,-1.5s-0.67,-1.5 -1.5,-1.5S13,8.17 13,9s0.67,1.5 1.5,1.5z" />
+</vector>
+

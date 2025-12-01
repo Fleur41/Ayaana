@@ -26,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -246,7 +245,6 @@ fun SearchHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.Black)
-//            .padding(horizontal = 12.dp, vertical = 8.dp),
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -343,14 +341,13 @@ fun SearchBar(
         keyboardActions = KeyboardActions(
             onSearch = {
                 focusManager.clearFocus()
-//                onSearchFocusChange(false)
             }
         ),
         interactionSource = interactionSource
     )
 }
 
-// NEW: Active search state (when search bar is focused)
+// Active search state (when search bar is focused)
 @Composable
 fun ActiveSearchState(
     searchState: SearchState,
@@ -467,7 +464,6 @@ fun ActiveSearchState(
     }
 }
 
-// REST OF YOUR EXISTING COMPOSABLE FUNCTIONS (KEEP THEM AS THEY ARE)
 
 @Composable
 fun DiscoverySection(

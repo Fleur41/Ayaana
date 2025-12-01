@@ -1,6 +1,14 @@
 package com.sam.ayaana.presentation.screens.chat
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +27,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,8 +46,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,6 +76,15 @@ fun ChatListScreen(
 ) {
     val chatsState by viewModel.chatsState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val filteredChats by viewModel.filteredChats.collectAsState()
+
+    val hasSearchResults = searchQuery.isNotEmpty() && filteredChats.isEmpty()
+    val searchResultMessage = if (searchQuery.isNotEmpty() && filteredChats.isEmpty()) {
+        "No results found for \"$searchQuery\""
+    } else {
+        ""
+    }
+
 
     println("🟡 DEBUG: ChatListScreen recomposed, chatsState: $chatsState")
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
@@ -133,30 +161,20 @@ fun ChatListScreen(
                 )
             }
         }
-    ) { paddingValues ->
+    )
+    { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color.White)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Black)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Chat",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-
             SearchBar(
                 query = searchQuery,
                 onQueryChange = viewModel::updateSearchQuery,
-                onSearch = viewModel::searchChats,
+                onClearClick = viewModel::clearSearch,
+                onSearch = viewModel::triggerSearch,
+//                onSearch = viewModel::searchChats,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -165,50 +183,213 @@ fun ChatListScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Requests",
+                text = "Messages",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            when (chatsState) {
-                is Result.Loading -> {
-                    println("🟡 DEBUG: Showing Loading state")
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+            // SIMPLIFIED LOGIC: Always use filteredChats when there's a search query
+            when {
+                // Show search results or "no results" message
+                searchQuery.isNotEmpty() -> {
+                    if (filteredChats.isNotEmpty()) {
+                        // Show filtered results
+                        println("✅ DEBUG: Showing ${filteredChats.size} filtered chats for '$searchQuery'")
+                        LazyColumn {
+                            items(filteredChats) { chat ->
+                                println("✅ DEBUG: Showing chat: ${chat.username}")
+                                ChatListItem(
+                                    chat = chat,
+                                    onClick = {
+                                        viewModel.selectChat(chat)
+                                        navController.navigate("chat_detail/${chat.id}")
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        // No results found
+                        println("⚠️ DEBUG: No results found for '$searchQuery'")
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SearchOff,
+                                    contentDescription = "No results",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "No results found for \"$searchQuery\"",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
                     }
                 }
-                is Result.Error -> {
-                    println("🟡 DEBUG: Showing Error state")
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Error loading chats")
-                    }
-                }
-                is Result.Success -> {
-                    val chats = (chatsState as Result.Success<List<Chat>>).data
-//                    val chats = (chatsState as Result.Success).data
-                    println("🟡 DEBUG: Showing Success state with ${chats.size} chats")
-                    LazyColumn {
-                        items(chats) { chat ->
-                            ChatListItem(
-                                chat = chat,
-                                onClick = {
-                                    viewModel.selectChat(chat)
-                                    navController.navigate("chat_detail/${chat.id}")
+
+                // Show initial chat list (no search)
+                else -> {
+                    when (chatsState) {
+                        is Result.Loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        is Result.Error -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Error loading chats")
+                            }
+                        }
+                        is Result.Success -> {
+                            val allChats = (chatsState as Result.Success<List<Chat>>).data
+                            LazyColumn {
+                                items(allChats) { chat ->
+                                    ChatListItem(
+                                        chat = chat,
+                                        onClick = {
+                                            viewModel.selectChat(chat)
+                                            navController.navigate("chat_detail/${chat.id}")
+                                        }
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }
             }
         }
+//    { paddingValues ->
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(paddingValues)
+//                .background(Color.White)
+//        ) {
+//            SearchBar(
+//                query = searchQuery,
+//                onQueryChange = viewModel::updateSearchQuery,
+//                onClearClick = viewModel::clearSearch,
+//                onSearch = viewModel::searchChats,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(16.dp)
+//            )
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            Text(
+//                text = "Messages",
+//                style = MaterialTheme.typography.titleMedium,
+//                modifier = Modifier.padding(horizontal = 16.dp)
+//            )
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            // FIXED LOGIC: Show content based on search state
+//            when {
+//                // Show search results or "no results" message when searching
+//                searchQuery.isNotEmpty() -> {
+//                    if (filteredChats.isEmpty()) {
+//                        // No results found
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .weight(1f),
+//                            contentAlignment = Alignment.Center
+//                        ) {
+//                            Column(
+//                                horizontalAlignment = Alignment.CenterHorizontally,
+//                                verticalArrangement = Arrangement.Center
+//                            ) {
+//                                Icon(
+//                                    imageVector = Icons.Default.SearchOff,
+//                                    contentDescription = "No results",
+//                                    tint = Color.Gray,
+//                                    modifier = Modifier.size(48.dp)
+//                                )
+//                                Spacer(modifier = Modifier.height(8.dp))
+//                                Text(
+//                                    text = "No results found for \"$searchQuery\"",
+//                                    style = MaterialTheme.typography.bodyMedium,
+//                                    color = Color.Gray
+//                                )
+//                            }
+//                        }
+//                    } else {
+//                        // Show filtered results
+//                        println("🟡 DEBUG: Showing ${filteredChats.size} filtered chats")
+//                        LazyColumn {
+//                            items(filteredChats) { chat ->
+//                                ChatListItem(
+//                                    chat = chat,
+//                                    onClick = {
+//                                        viewModel.selectChat(chat)
+//                                        navController.navigate("chat_detail/${chat.id}")
+//                                    }
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                // Show loading/error/success for initial chat list
+//                else -> {
+//                    when (chatsState) {
+//                        is Result.Loading -> {
+//                            println("🟡 DEBUG: Showing Loading state")
+//                            Box(
+//                                modifier = Modifier.fillMaxSize(),
+//                                contentAlignment = Alignment.Center
+//                            ) {
+//                                CircularProgressIndicator()
+//                            }
+//                        }
+//                        is Result.Error -> {
+//                            println("🟡 DEBUG: Showing Error state")
+//                            Box(
+//                                modifier = Modifier.fillMaxSize(),
+//                                contentAlignment = Alignment.Center
+//                            ) {
+//                                Text("Error loading chats")
+//                            }
+//                        }
+//                        is Result.Success -> {
+//                            val allChats = (chatsState as Result.Success<List<Chat>>).data
+//                            println("🟡 DEBUG: Showing Success state with ${allChats.size} chats")
+//                            LazyColumn {
+//                                items(allChats) { chat ->
+//                                    ChatListItem(
+//                                        chat = chat,
+//                                        onClick = {
+//                                            viewModel.selectChat(chat)
+//                                            navController.navigate("chat_detail/${chat.id}")
+//                                        }
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
@@ -217,17 +398,35 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
+    onClearClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TextField(
         value = query,
         onValueChange = onQueryChange,
         leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Search")
+            AyaanaAIIcon(
+                isRotating = true,
+                modifier = Modifier.size(24.dp)
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()){
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Clear",
+                    modifier = Modifier
+                        .clickable(onClick = onClearClick)
+                )
+            }
         },
         placeholder = {
-            Text("Ask Meta AI or Search")
+            Text("Ask Ayaana AI or Search")
         },
+        textStyle = MaterialTheme.typography.bodyMedium.copy(
+            color = Color.Black,
+            fontSize = 16.sp
+        ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { onSearch() }),
         colors = TextFieldDefaults.colors(
@@ -235,12 +434,20 @@ fun SearchBar(
             unfocusedContainerColor = Color.LightGray.copy(alpha = 0.3f),
             disabledContainerColor = Color.LightGray.copy(alpha = 0.3f),
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            cursorColor = Color(0xFF833AB4),
+            focusedLeadingIconColor = Color.Gray,
+            unfocusedLeadingIconColor = Color.Gray,
+            focusedTrailingIconColor = Color.Gray,
+            unfocusedTrailingIconColor = Color.Gray
         ),
         shape = MaterialTheme.shapes.medium,
+        singleLine = true,
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(56.dp)
     )
 }
 
@@ -289,161 +496,241 @@ fun ChatListItem(
     }
 }
 
-
-
-
-//package com.sam.ayaana.presentation.screens.chat
-//
-//import androidx.compose.foundation.background
-//import androidx.compose.foundation.layout.Box
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.layout.fillMaxWidth
-//import androidx.compose.foundation.layout.padding
-//import androidx.compose.material3.ExperimentalMaterial3Api
-//import androidx.compose.material3.Icon
-//import androidx.compose.material3.NavigationBar
-//import androidx.compose.material3.NavigationBarItem
-//import androidx.compose.material3.Scaffold
-//import androidx.compose.material3.Text
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.getValue
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.res.painterResource
-//import androidx.compose.ui.text.font.FontWeight
-//import androidx.compose.ui.tooling.preview.Preview
-//import androidx.compose.ui.unit.dp
-//import androidx.compose.ui.unit.sp
-//import androidx.navigation.NavHostController
-//import androidx.navigation.compose.currentBackStackEntryAsState
-//import com.sam.ayaana.R
-//@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
-//fun ChatScreen(
-//    navController: NavHostController? = null
+//fun AyaanaAIIcon(
+//    modifier: Modifier = Modifier,
+//    isRotating: Boolean = true
 //) {
-//    val currentRoute = if (navController != null) {
-//        val navBackStackEntry by navController.currentBackStackEntryAsState()
-//        navBackStackEntry?.destination?.route
-//    } else {
-//        "chat"
-//    }
+//    val infiniteTransition = rememberInfiniteTransition()
 //
-//    Scaffold(
-//        topBar = {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(Color.Black)
-//                    .padding(16.dp)
-//            ) {
-//                Text(
-//                    text = "Chat",
-//                    color = Color.White,
-//                    fontSize = 20.sp,
-//                    fontWeight = FontWeight.Bold
-//                )
-//            }
-//        },
-//        bottomBar = {
-//            NavigationBar(
-//                containerColor = Color.Black,
-//                contentColor = Color.White
-//            ) {
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "home") R.drawable.ic_home_filled else R.drawable.ic_home_outlined),
-//                            contentDescription = "Home",
-//                            tint = if (currentRoute == "home") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "home",
-//                    onClick = { navController?.navigate("home") }
-//                )
+//    // Animation 1: Circular rotation (existing)
+//    val rotation by infiniteTransition.animateFloat(
+//        initialValue = 0f,
+//        targetValue = 360f,
+//        animationSpec = infiniteRepeatable(
+//            animation = tween(3000, easing = LinearEasing),
+//            repeatMode = RepeatMode.Restart
+//        )
+//    )
 //
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "reels") R.drawable.ic_reels_filled else R.drawable.ic_reels_outlined),
-//                            contentDescription = "Reels",
-//                            tint = if (currentRoute == "reels") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "reels",
-//                    onClick = { navController?.navigate("reels") }
-//                )
+//    // Animation 2: Vertical sweep through text (new)
+//    val verticalSweep by infiniteTransition.animateFloat(
+//        initialValue = 0f,
+//        targetValue = 1f,
+//        animationSpec = infiniteRepeatable(
+//            animation = tween(1500, easing = LinearEasing), // Half the time of rotation
+//            repeatMode = RepeatMode.Reverse // Goes 0→1 then 1→0
+//        )
+//    )
 //
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "chat") R.drawable.ic_chat_filled else R.drawable.ic_chat_outlined),
-//                            contentDescription = "Chat",
-//                            tint = if (currentRoute == "chat") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "chat",
-//                    onClick = { navController?.navigate("chat") }
-//                )
+//    // Ayaana gradient colors
+//    val ayaanaGradient = listOf(
+//        Color(0xFF833AB4), // Purple
+//        Color(0xFFC13584), // Pink
+//        Color(0xFFE1306C), // Red-pink
+//        Color(0xFFFD1D1D), // Red
+//        Color(0xFFF56040), // Orange
+//        Color(0xFFF77737), // Light orange
+//        Color(0xFFFCAF45), // Yellow
+//        Color(0xFFFFDC80), // Light yellow
+//        Color(0xFF833AB4)  // Back to purple
+//    )
 //
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "search") R.drawable.ic_search_filled else R.drawable.ic_search_outlined),
-//                            contentDescription = "Search",
-//                            tint = if (currentRoute == "search") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "search",
-//                    onClick = { navController?.navigate("search") }
-//                )
+//    Box(
+//        modifier = modifier
+//            .size(24.dp)
+//            .graphicsLayer {
+//                if (isRotating) {
+//                    rotationZ = rotation
+//                }
+//            },
+//        contentAlignment = Alignment.Center
+//    ) {
+//        // Outer rotating gradient ring
+//        Canvas(modifier = Modifier.fillMaxSize()) {
+//            val sweepGradient = Brush.sweepGradient(
+//                colors = ayaanaGradient,
+//                center = Offset(size.width / 2, size.height / 2)
+//            )
 //
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "profile") R.drawable.ic_profile_filled else R.drawable.ic_profile_outlined),
-//                            contentDescription = "Profile",
-//                            tint = if (currentRoute == "profile") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "profile",
-//                    onClick = { navController?.navigate("profile") }
-//                )
-//            }
+//            // Draw the main gradient ring
+//            drawCircle(
+//                brush = sweepGradient,
+//                radius = size.minDimension / 2 - 1.dp.toPx(),
+//                style = Stroke(width = 2.5.dp.toPx())
+//            )
+//
+//            // Optional: Add a subtle glow effect
+//            drawCircle(
+//                brush = Brush.radialGradient(
+//                    colors = listOf(
+//                        Color(0xFF833AB4).copy(alpha = 0.2f),
+//                        Color.Transparent
+//                    ),
+//                    center = Offset(size.width / 2, size.height / 2),
+//                    radius = size.minDimension / 2
+//                ),
+//                radius = size.minDimension / 2
+//            )
 //        }
-//    ) { innerPadding ->
-//        Column(
+//
+//        // Center with "Ay" text that has vertical sweep animation
+//        Box(
 //            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//                .background(Color.White),
-//            horizontalAlignment = Alignment.CenterHorizontally
+//                .size(14.dp),
+//            contentAlignment = Alignment.Center
 //        ) {
+//            // Background for the text (static white)
 //            Box(
 //                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .weight(1f),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = "Chat Content Will Be Here",
-//                    color = Color.Black,
-//                    fontSize = 18.sp
+//                    .fillMaxSize()
+//                    .background(Color.White, CircleShape)
+//                    .border(0.5.dp, Color.LightGray.copy(alpha = 0.2f), CircleShape)
+//            )
+//
+//            // Text with vertical gradient sweep effect
+//            Canvas(modifier = Modifier.fillMaxSize()) {
+//                // Create a vertical gradient that moves up and down
+//                val verticalGradient = Brush.verticalGradient(
+//                    colors = listOf(
+//                        Color.Transparent,
+//                        Color(0xFF833AB4).copy(alpha = 0.8f), // Purple highlight
+//                        Color(0xFFFCAF45).copy(alpha = 0.8f), // Yellow highlight
+//                        Color.Transparent
+//                    ),
+//                    startY = size.height * verticalSweep - size.height * 0.5f,
+//                    endY = size.height * verticalSweep + size.height * 0.5f
 //                )
+//
+//                // Create a mask for the text shape
+//                drawContext.canvas.nativeCanvas.apply {
+//                    saveLayer(
+//                        android.graphics.RectF(0f, 0f, size.width, size.height),
+//                        null
+//                    )
+//
+//                    // Draw text in black (this will be masked)
+//                    drawIntoCanvas { canvas ->
+//                        val paint = android.graphics.Paint().apply {
+//                            color = android.graphics.Color.BLACK
+//                            textSize = 10.sp.toPx() // Slightly larger for mask
+//                            textAlign = android.graphics.Paint.Align.CENTER
+//                            isFakeBoldText = true
+//                        }
+//
+//                        val x = size.width / 2
+//                        val y = size.height / 2 - (paint.ascent() + paint.descent()) / 2
+//
+//                        canvas.nativeCanvas.drawText("Ay", x, y, paint)
+//                    }
+//
+//                    // Apply the vertical gradient as source (DST_IN compositing)
+//                    drawRect(
+//                        brush = verticalGradient,
+//                        blendMode = BlendMode.SrcIn
+//                    )
+//
+//                    restore()
+//                }
 //            }
 //        }
 //    }
 //}
-//
-//@Preview
-//@Composable
-//private fun ChatScreenPreview() {
-//    ChatScreen()
-//}
+
+
+@Composable
+fun AyaanaAIIcon(
+    modifier: Modifier = Modifier,
+    isRotating: Boolean = true
+) {
+    // Animation 1: Circular rotation
+    val infiniteTransition = rememberInfiniteTransition()
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, easing = LinearEasing), // 3 seconds for full rotation
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    // Animation 2: Vertical sweep through text
+    val verticalSweep by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = LinearEasing), // Half the time of rotation
+            repeatMode = RepeatMode.Reverse // Goes 0→1 then 1→0
+        )
+    )
+
+
+    // Ayaana gradient colors - you can customize these
+    val ayaanaGradient = listOf(
+        Color(0xFF833AB4), // Purple (Instagram style)
+        Color(0xFFC13584), // Pink
+        Color(0xFFE1306C), // Red-pink
+        Color(0xFFFD1D1D), // Red
+        Color(0xFFF56040), // Orange
+        Color(0xFFF77737), // Light orange
+        Color(0xFFFCAF45), // Yellow
+        Color(0xFFFFDC80), // Light yellow
+        Color(0xFF833AB4)  // Back to purple
+    )
+
+    Box(
+        modifier = modifier
+            .size(24.dp)
+            .graphicsLayer {
+                if (isRotating) {
+                    rotationZ = rotation
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        // Outer rotating gradient ring
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val sweepGradient = Brush.sweepGradient(
+                colors = ayaanaGradient,
+                center = Offset(size.width / 2, size.height / 2)
+            )
+
+            // Draw the main gradient ring
+            drawCircle(
+                brush = sweepGradient,
+                radius = size.minDimension / 2 - 1.dp.toPx(),
+                style = Stroke(width = 2.5.dp.toPx())
+            )
+
+            // Optional: Add a subtle glow effect
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Color(0xFF833AB4).copy(alpha = 0.2f),
+                        Color.Transparent
+                    ),
+                    center = Offset(size.width / 2, size.height / 2),
+                    radius = size.minDimension / 2
+                ),
+                radius = size.minDimension / 2
+            )
+        }
+
+        // Center with "Ay" text (Ayaana)
+        Box(
+            modifier = Modifier
+                .size(14.dp)
+                .background(Color.White, CircleShape)
+                .border(0.5.dp, Color.LightGray.copy(alpha = 0.2f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Ay",
+                color = Color(0xFF833AB4),
+                fontSize = 6.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = (-0.3).sp
+            )
+        }
+    }
+}

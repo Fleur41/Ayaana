@@ -32,6 +32,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -65,10 +67,10 @@ fun VoiceRecorder(
 
     var isRecording by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
-    var recordingTime by remember { mutableStateOf(0) }
+    var recordingTime by remember { mutableIntStateOf(0) }
     var mediaRecorder by remember { mutableStateOf<MediaRecorder?>(null) }
     var audioFile by remember { mutableStateOf<File?>(null) }
-    var recordingAmplitude by remember { mutableStateOf(0f) }
+    var recordingAmplitude by remember { mutableFloatStateOf(0f) }
 
     // Check permissions when component is created
     LaunchedEffect(Unit) {
@@ -217,22 +219,22 @@ fun VoiceRecorder(
                     onClick = {
                         if (isPaused) {
                             // Resume recording
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                mediaRecorder?.resume()
-                            }
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                                mediaRecorder?.resume()
+//                            }
+//                            isPaused = false
+                            mediaRecorder?.resume()
                             isPaused = false
                         } else {
                             // Pause recording
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                mediaRecorder?.pause()
-                                isPaused = true
-                            }
+                            mediaRecorder?.pause()
+                            isPaused = true
                         }
                     },
                     modifier = Modifier
                         .size(80.dp)
                         .background(Color(0xFFFF9800), CircleShape),
-                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                    enabled = true
                 ) {
                     Icon(
                         imageVector = if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
