@@ -131,7 +131,7 @@ fun ChatListScreen(
                     },
                     label = { Text(text = "", fontSize = 0.sp) },
                     selected = currentRoute == "chat",
-                    onClick = { }
+                    onClick = { navController.navigate("chat") }
                 )
 
                 NavigationBarItem(
@@ -210,8 +210,6 @@ fun ChatListScreen(
                             }
                         }
                     } else {
-                        // No results found
-                        println("⚠️ DEBUG: No results found for '$searchQuery'")
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -276,120 +274,6 @@ fun ChatListScreen(
                 }
             }
         }
-//    { paddingValues ->
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(paddingValues)
-//                .background(Color.White)
-//        ) {
-//            SearchBar(
-//                query = searchQuery,
-//                onQueryChange = viewModel::updateSearchQuery,
-//                onClearClick = viewModel::clearSearch,
-//                onSearch = viewModel::searchChats,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(16.dp)
-//            )
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Text(
-//                text = "Messages",
-//                style = MaterialTheme.typography.titleMedium,
-//                modifier = Modifier.padding(horizontal = 16.dp)
-//            )
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            // FIXED LOGIC: Show content based on search state
-//            when {
-//                // Show search results or "no results" message when searching
-//                searchQuery.isNotEmpty() -> {
-//                    if (filteredChats.isEmpty()) {
-//                        // No results found
-//                        Box(
-//                            modifier = Modifier
-//                                .fillMaxSize()
-//                                .weight(1f),
-//                            contentAlignment = Alignment.Center
-//                        ) {
-//                            Column(
-//                                horizontalAlignment = Alignment.CenterHorizontally,
-//                                verticalArrangement = Arrangement.Center
-//                            ) {
-//                                Icon(
-//                                    imageVector = Icons.Default.SearchOff,
-//                                    contentDescription = "No results",
-//                                    tint = Color.Gray,
-//                                    modifier = Modifier.size(48.dp)
-//                                )
-//                                Spacer(modifier = Modifier.height(8.dp))
-//                                Text(
-//                                    text = "No results found for \"$searchQuery\"",
-//                                    style = MaterialTheme.typography.bodyMedium,
-//                                    color = Color.Gray
-//                                )
-//                            }
-//                        }
-//                    } else {
-//                        // Show filtered results
-//                        println("🟡 DEBUG: Showing ${filteredChats.size} filtered chats")
-//                        LazyColumn {
-//                            items(filteredChats) { chat ->
-//                                ChatListItem(
-//                                    chat = chat,
-//                                    onClick = {
-//                                        viewModel.selectChat(chat)
-//                                        navController.navigate("chat_detail/${chat.id}")
-//                                    }
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                // Show loading/error/success for initial chat list
-//                else -> {
-//                    when (chatsState) {
-//                        is Result.Loading -> {
-//                            println("🟡 DEBUG: Showing Loading state")
-//                            Box(
-//                                modifier = Modifier.fillMaxSize(),
-//                                contentAlignment = Alignment.Center
-//                            ) {
-//                                CircularProgressIndicator()
-//                            }
-//                        }
-//                        is Result.Error -> {
-//                            println("🟡 DEBUG: Showing Error state")
-//                            Box(
-//                                modifier = Modifier.fillMaxSize(),
-//                                contentAlignment = Alignment.Center
-//                            ) {
-//                                Text("Error loading chats")
-//                            }
-//                        }
-//                        is Result.Success -> {
-//                            val allChats = (chatsState as Result.Success<List<Chat>>).data
-//                            println("🟡 DEBUG: Showing Success state with ${allChats.size} chats")
-//                            LazyColumn {
-//                                items(allChats) { chat ->
-//                                    ChatListItem(
-//                                        chat = chat,
-//                                        onClick = {
-//                                            viewModel.selectChat(chat)
-//                                            navController.navigate("chat_detail/${chat.id}")
-//                                        }
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

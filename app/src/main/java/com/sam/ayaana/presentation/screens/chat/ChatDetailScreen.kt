@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Videocam
@@ -390,16 +391,15 @@ fun ChatInputBar(
     onEmojiClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isTyping = messageText.isNotBlank() // FIX: Track typing state
+    val isTyping = messageText.isNotBlank()
 
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // FIX: Use AnimatedContent or animate size changes for smooth transitions
         Box(
             modifier = Modifier
-                .weight(if (isTyping) 0.85f else 1f) // FIX: Weight changes based on typing
+                .weight(if (isTyping) 0.85f else 1f)
                 .height(45.dp)
                 .background(
                     color = Color(0xFFF0F0F0),
@@ -413,7 +413,7 @@ fun ChatInputBar(
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Camera icon - always visible inside the rounded container
+                // Camera icon - always visible
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -458,14 +458,14 @@ fun ChatInputBar(
                     )
                 }
 
-                // FIX: Only show voice/image/emoji when NOT typing
-                if (!isTyping) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                // FIXED: Emoji icon is ALWAYS visible, voice/image hide when typing
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                        // Voice note icon
+                    // Voice note icon - only visible when NOT typing
+                    if (!isTyping) {
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
@@ -480,10 +480,11 @@ fun ChatInputBar(
                                 tint = Color.White
                             )
                         }
-
                         Spacer(modifier = Modifier.width(8.dp))
+                    }
 
-                        // Image picker icon
+                    // Image picker icon - only visible when NOT typing
+                    if (!isTyping) {
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
@@ -498,46 +499,45 @@ fun ChatInputBar(
                                 tint = Color.Black
                             )
                         }
-
                         Spacer(modifier = Modifier.width(8.dp))
+                    }
 
-                        // Emoji icon
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(Color.Transparent, CircleShape)
-                                .border(
-                                    width = 1.dp,
-                                    color = Color.Gray.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .noRippleClickable(onClick = onEmojiClick),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_emoji),
-                                contentDescription = "Emoji",
-                                modifier = Modifier.size(20.dp),
-                                tint = Color.Unspecified
+                    // Emoji icon - ALWAYS visible (even when typing)
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Color.Transparent, CircleShape)
+                            .border(
+                                width = 1.dp,
+                                color = Color.Gray.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(8.dp)
                             )
-                        }
+                            .noRippleClickable(onClick = onEmojiClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_emoji),
+                            contentDescription = "Emoji",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Unspecified
+                        )
                     }
                 }
             }
         }
 
-        // FIX: Send button appears OUTSIDE the rounded container when typing
+        // Send button appears when typing
         if (isTyping) {
             Spacer(modifier = Modifier.width(12.dp))
             Box(
                 modifier = Modifier
-                    .size(45.dp) // Same height as input bar
+                    .size(45.dp)
                     .background(Color(0xFF3797F0), CircleShape)
                     .noRippleClickable(onClick = onSendMessage),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Send,
+                    imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = "Send",
                     modifier = Modifier.size(20.dp),
                     tint = Color.White
@@ -546,6 +546,7 @@ fun ChatInputBar(
         }
     }
 }
+
 //@Composable
 //fun ChatInputBar(
 //    messageText: String,

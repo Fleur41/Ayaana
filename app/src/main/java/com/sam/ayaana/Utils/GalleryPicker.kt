@@ -3,6 +3,7 @@ package com.sam.ayaana.Utils
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -25,8 +26,13 @@ object GalleryPicker {
         maxSelection: Int = 1,
         isVideoOnly: Boolean = false
     ): GalleryLauncherResult {
+        val permission = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            Manifest.permission.READ_MEDIA_IMAGES
+        }else{
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
         val permissionState = rememberPermissionState(
-            permission = Manifest.permission.READ_EXTERNAL_STORAGE
+            permission = permission
         )
 
         val galleryLauncher = rememberLauncherForActivityResult(

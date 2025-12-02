@@ -221,22 +221,6 @@ fun InstagramTopView(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            Button(
-//                onClick = {
-//                    Log.e("NAV_TEST", "🎯 BUTTON CLICKED - Starting navigation...")
-//                    try {
-//                        navController?.navigate(NavigationDestination.CreatePost.route) {
-//                            launchSingleTop = true
-//                        }
-//                        Log.e("NAV_TEST", "✅ Navigation command sent successfully")
-//                    } catch (e: Exception) {
-//                        Log.e("NAV_TEST", "❌ Navigation failed: ${e.message}", e)
-//                    }
-//                },
-//                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-//            ) {
-//                Text("ADD", color = Color.White)
-//            }
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add post",
@@ -363,18 +347,6 @@ fun InstagramStoryView(
                 onItemClick = { Log.d("TAG", "UserStoryItem clicked") },
                 hasProfilePicture = hasProfilePicture,
                 onProfilePictureAdded = onProfilePictureAdded,
-//                onAddPhotoClick = {
-//                    Log.e("HOME_DEBUG", "🎯 STEP -1: + Icon clicked in HomeScreen!")
-//                    Log.e("HOME_DEBUG", "🎯 navController: $navController")
-//                    Log.e("HOME_DEBUG", "🎯 Route: ${NavigationDestination.CreatePost.route}")
-//
-//                    try {
-//                        navController?.navigate(NavigationDestination.CreatePost.route)
-//                        Log.e("HOME_DEBUG", "✅ Navigation command sent successfully!")
-//                    } catch (e: Exception) {
-//                        Log.e("HOME_DEBUG", "❌ Navigation failed: ${e.message}", e)
-//                    }
-//                }
                 onAddPhotoClick = {
                     navController?.navigate(NavigationDestination.CreatePost.route)
                 }
