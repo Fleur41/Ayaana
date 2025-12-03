@@ -16,7 +16,6 @@ data class User(
     val isFollowing: Boolean,
     val followStatus: FollowStatus = FollowStatus.NOT_FOLLOWING,
     val isCurrentUser: Boolean = false, // NEW: to distinguish my profile vs others
-
     val localProfileUri: Uri? = null,
     // Optionals
     val website: String? = null,

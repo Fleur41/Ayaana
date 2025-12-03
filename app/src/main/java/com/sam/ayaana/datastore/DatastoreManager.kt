@@ -27,6 +27,8 @@ class DatastoreManager @Inject constructor(
     private val userEmailKey = stringPreferencesKey("user_email")
     private val languageKey = booleanPreferencesKey("language")
     private val recentSearchesKey = stringSetPreferencesKey("recent_searches")
+    // Profile Image PathKey
+    private val profileImagePathKey = stringPreferencesKey("profile_image_path")
 
     // Flow for language
     val language: Flow<Boolean> = context.dataStore.data.map{ preference ->
@@ -44,6 +46,10 @@ class DatastoreManager @Inject constructor(
         preference[recentSearchesKey]?.toList() ?: emptyList()
     }
 
+    // Get profile image path
+    val profileImagePath: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[profileImagePathKey]
+    }
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
         context.dataStore.edit { preference ->
             preference[authenticatedKey] = authenticated
@@ -78,18 +84,17 @@ class DatastoreManager @Inject constructor(
         }
     }
 
-    private suspend fun saveRecentSearchesInternal(searches: List<String>) {
-        context.dataStore.edit { preference ->
-            preference[recentSearchesKey] = searches.toSet()
-        }
-    }
     suspend fun saveRecentSearches(searches: List<String>) {
         context.dataStore.edit { preference ->
             preference[recentSearchesKey] = searches.toSet()
         }
     }
 
-
+//    private suspend fun saveRecentSearchesInternal(searches: List<String>) {
+//        context.dataStore.edit { preference ->
+//            preference[recentSearchesKey] = searches.toSet()
+//        }
+//    }
 
     suspend fun addRecentSearch(search: String) {
         val currentSearches = context.dataStore.data.map { preference ->
@@ -137,4 +142,26 @@ class DatastoreManager @Inject constructor(
 //            preference[recentSearchesKey] = currentSearches
 //        }
 //    }
+
+    //New
+    // Save profile image path
+    suspend fun saveProfileImagePath(path: String) {
+        context.dataStore.edit { preference ->
+            preference[profileImagePathKey] = path
+        }
+    }
+
+    //  Get profile image path
+    suspend fun getProfileImagePath(): String? {
+        return context.dataStore.data.map {preferences ->
+            preferences[profileImagePathKey]
+        }.first()
+    }
+
+    // Clear profile image path
+    suspend fun clearProfileImagePath() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(profileImagePathKey)
+        }
+    }
 }

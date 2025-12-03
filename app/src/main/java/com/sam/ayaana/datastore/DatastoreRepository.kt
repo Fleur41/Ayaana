@@ -11,6 +11,8 @@ class DatastoreRepository @Inject constructor(
     val authToken: Flow<String?> = datastoreManager.authToken
     // Recent searches flow
     val recentSearches: Flow<List<String>> = datastoreManager.recentSearches
+    val profileImagePath: Flow<String?> = datastoreManager.profileImagePath
+
 
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
         datastoreManager.saveIsAuthenticated(authenticated)
@@ -30,7 +32,6 @@ class DatastoreRepository @Inject constructor(
     }
 
     // ADDED: Methods for recent searches
-    // ADDED: Method to remove a single recent search
     suspend fun removeRecentSearch(search: String) {
         datastoreManager.removeRecentSearch(search)
     }
@@ -50,6 +51,18 @@ class DatastoreRepository @Inject constructor(
 
     suspend fun addRecentSearch(search: String) {
         datastoreManager.addRecentSearch(search)
+    }
+
+    suspend fun saveProfileImagePath(path: String){
+        datastoreManager.saveProfileImagePath(path)
+    }
+
+    suspend fun getProfileImagePath(): String? {
+        return datastoreManager.getProfileImagePath()
+    }
+
+    suspend fun clearProfileImagePath() {
+        datastoreManager.clearProfileImagePath()
     }
 }
 
