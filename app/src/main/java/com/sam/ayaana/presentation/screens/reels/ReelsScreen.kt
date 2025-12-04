@@ -23,12 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.sam.ayaana.R
-import com.sam.ayaana.Utils.SharedBottomNav
-import com.sam.ayaana.presentation.screens.shared.SharedViewModel
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

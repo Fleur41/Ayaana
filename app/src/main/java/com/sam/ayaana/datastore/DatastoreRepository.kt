@@ -12,6 +12,8 @@ class DatastoreRepository @Inject constructor(
     // Recent searches flow
     val recentSearches: Flow<List<String>> = datastoreManager.recentSearches
     val profileImagePath: Flow<String?> = datastoreManager.profileImagePath
+    val theme: Flow<String> = datastoreManager.theme
+    val privacySetting: Flow<Boolean> = datastoreManager.privacySetting
 
 
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
@@ -63,6 +65,24 @@ class DatastoreRepository @Inject constructor(
 
     suspend fun clearProfileImagePath() {
         datastoreManager.clearProfileImagePath()
+    }
+
+    // Theme methods
+    suspend fun saveTheme(theme: String) {
+        datastoreManager.saveTheme(theme)
+    }
+
+//    suspend fun getTheme(): String{
+//        return datastoreManager.getTheme()
+//    }
+
+    // ADD: Privacy setting methods
+    suspend fun savePrivacySetting(isPrivate: Boolean) {
+        datastoreManager.savePrivacySetting(isPrivate)
+    }
+
+    suspend fun getPrivacySetting(): Boolean {
+        return datastoreManager.getPrivacySetting()
     }
 }
 

@@ -26,10 +26,11 @@ class DatastoreManager @Inject constructor(
     private val refreshTokenKey = stringPreferencesKey("refresh_token")
     private val userEmailKey = stringPreferencesKey("user_email")
     private val languageKey = booleanPreferencesKey("language")
+    private val themeKey = stringPreferencesKey("app_theme")
     private val recentSearchesKey = stringSetPreferencesKey("recent_searches")
     // Profile Image PathKey
     private val profileImagePathKey = stringPreferencesKey("profile_image_path")
-
+    private val privacySettingKey = booleanPreferencesKey("privacy_setting")
     // Flow for language
     val language: Flow<Boolean> = context.dataStore.data.map{ preference ->
         preference[authenticatedKey] ?: false
@@ -50,6 +51,17 @@ class DatastoreManager @Inject constructor(
     val profileImagePath: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[profileImagePathKey]
     }
+
+    // Theme flow
+    val theme: Flow<String> = context.dataStore.data.map { preference ->
+        preference[themeKey] ?: "light"
+    }
+
+    // Privacy setting flow
+    val privacySetting: Flow<Boolean> = context.dataStore.data.map { preference ->
+        preference[privacySettingKey] ?: false
+    }
+
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
         context.dataStore.edit { preference ->
             preference[authenticatedKey] = authenticated
@@ -77,7 +89,7 @@ class DatastoreManager @Inject constructor(
         }
     }
 
-    // ADDED: Methods for recent searches management
+    // Methods for recent searches management
     suspend fun clearRecentSearches() {
         context.dataStore.edit { preference ->
             preference.remove(recentSearchesKey)
@@ -163,5 +175,31 @@ class DatastoreManager @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences.remove(profileImagePathKey)
         }
+    }
+
+    // Theme methods
+    suspend fun saveTheme(theme: String) {
+        context.dataStore.edit { preference ->
+            preference[themeKey] = theme
+        }
+    }
+
+//    suspend fun getTheme(): String{
+//        return context.dataStore.data.map { preference ->
+//            preference[themeKey] ?: "light"
+//        }.first()
+//    }
+
+    // Privacy setting methods
+    suspend fun savePrivacySetting(isPrivate: Boolean) {
+        context.dataStore.edit { preference ->
+            preference[privacySettingKey] = isPrivate
+        }
+    }
+
+    suspend fun getPrivacySetting(): Boolean {
+        return context.dataStore.data.map { preference ->
+            preference[privacySettingKey] ?: false
+        }.first()
     }
 }

@@ -111,4 +111,25 @@ sealed interface NavigationDestination {
         val routeWithArgs = "$route/{$chatIdArg}"
 
     }
+
+    data object MenuScreen : NavigationDestination {
+        override val title: String
+            get() = "Menu"
+        override val route: String
+            get() = "menu_screen"
+    }
+
+    data object ThemeScreen : NavigationDestination {
+        override val title: String
+            get() = "Theme"
+        override val route: String
+            get() = "theme"
+    }
+
+    data object Privacy : NavigationDestination {
+        override val title: String
+            get() = "Privacy"
+        override val route: String
+            get() = "privacy"
+    }
 }
