@@ -20,11 +20,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -68,9 +70,9 @@ fun MenuScreen(
             title = {
                 Text(
                     text = "Settings and Activity",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
                     style = MaterialTheme.typography.titleLarge
+//                    fontWeight = FontWeight.Bold,
+//                    fontSize = 18.sp,
                 )
             },
             navigationIcon = {
@@ -163,6 +165,31 @@ fun MenuScreen(
             title = "Theme",
             onClick = {
                 navController.navigate("theme")
+            }
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
+        // 7. AI Assistant
+        MenuItem(
+            icon = Icons.Default.SmartToy, // Or create custom icon
+            title = "Ayaana AI Assistant",
+            onClick = {
+                navController.navigate(NavigationDestination.AiAssistant.route){
+                    launchSingleTop = true
+                    // Optional: Restore state if needed
+                    restoreState = true
+                }
+            }
+        )
+
+        // 8. AI Tools (if you want a separate section)
+        MenuItem(
+            icon = Icons.Default.AutoAwesome,
+            title = "AI Hashtag Generator",
+            onClick = {
+                navController.navigate(NavigationDestination.HashtagGenerator.route) {
+                    launchSingleTop = true
+                }
             }
         )
 

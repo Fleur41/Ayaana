@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.generativeai)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.test)
+    implementation(libs.androidx.compose.ui.text)
     ksp(libs.hilt.android.compiler)
 
     //navigation

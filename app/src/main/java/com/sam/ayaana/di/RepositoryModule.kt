@@ -3,9 +3,13 @@ package com.sam.ayaana.di
 import com.sam.ayaana.authentication.AuthRepository
 import com.sam.ayaana.authentication.AuthRepositoryImpl
 import com.sam.ayaana.domain.repository.ActivityRepositoryImpl
+import com.sam.ayaana.domain.repository.AiAssistantRepositoryImpl
 import com.sam.ayaana.domain.repository.ChatRepositoryImpl
+import com.sam.ayaana.domain.repository.HashtagRepositoryImpl
 import com.sam.ayaana.domain.repository.IActivityRepository
+import com.sam.ayaana.domain.repository.IAiAssistantRepository
 import com.sam.ayaana.domain.repository.IChatRepository
+import com.sam.ayaana.domain.repository.IHashtagRepository
 import com.sam.ayaana.domain.repository.IPostRepository
 import com.sam.ayaana.domain.repository.IRecentSearchesRepository
 import com.sam.ayaana.domain.repository.ISocialAuthRepository
@@ -44,4 +48,13 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindChatRepository(impl: ChatRepositoryImpl): IChatRepository
+
+    @Binds
+    abstract fun bindAiAssistantRepository(impl: AiAssistantRepositoryImpl): IAiAssistantRepository
+
+    @Binds
+    abstract fun bindHashtagRepository(impl: HashtagRepositoryImpl): IHashtagRepository
+
 }
+
+

@@ -132,4 +132,28 @@ sealed interface NavigationDestination {
         override val route: String
             get() = "privacy"
     }
+
+    data object AiTools : NavigationDestination {
+        override val title: String
+            get() = "AI Tools"
+        override val route: String
+            get() = "ai_tools"
+    }
+
+    data object AiAssistant : NavigationDestination {
+        override val title: String
+            get() = "AI Assistant"
+        override val route: String
+            get() = "ai_assistant"
+        const val initialQueryArg = "initialQuery"
+        val routeWithArgs: String
+            get() = "$route?$initialQueryArg={$initialQueryArg}"
+    }
+
+    data object HashtagGenerator : NavigationDestination {
+        override val title: String
+            get() = "Hashtag Generator"
+        override val route: String
+            get() = "hashtag_generator"
+    }
 }

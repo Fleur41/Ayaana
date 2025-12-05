@@ -30,7 +30,8 @@ fun PrivacyScreen(
                 title = {
                     Text(
                         text = "Privacy Settings",
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.titleLarge
+                        // style = MaterialTheme.typography.headlineSmall
                     )
                 },
                 navigationIcon = {
@@ -64,7 +65,7 @@ fun PrivacySettingsContent(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Account Privacy Section

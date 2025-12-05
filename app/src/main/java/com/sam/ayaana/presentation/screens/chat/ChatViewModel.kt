@@ -3,11 +3,13 @@ package com.sam.ayaana.presentation.screens.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sam.ayaana.Utils.Result
+import com.sam.ayaana.domain.model.AiMessage
 import com.sam.ayaana.domain.model.Chat
 import com.sam.ayaana.domain.model.Message
 import com.sam.ayaana.domain.repository.IChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +47,12 @@ class ChatViewModel @Inject constructor(
 
     private val _filteredChats = MutableStateFlow<List<Chat>>(emptyList())
     val filteredChats: StateFlow<List<Chat>> = _filteredChats.asStateFlow()
+
+    private val _aiMessages = MutableStateFlow<List<AiMessage>>(emptyList())
+    val aiMessages: StateFlow<List<AiMessage>> = _aiMessages.asStateFlow()
+
+    private val _isAiResponding = MutableStateFlow(false)
+    val isAiResponding: StateFlow<Boolean> = _isAiResponding.asStateFlow()
 
     val hasSearchResults: Boolean
         get() = _searchQuery.value.isNotEmpty() && _filteredChats.value.isEmpty()
@@ -197,5 +205,39 @@ class ChatViewModel @Inject constructor(
             }
             // You can handle error case here if needed
         }
+    }
+
+    // sendAiQuery
+    fun sendAiQuery(query: String) {
+        viewModelScope.launch {
+            _isAiResponding.value = true
+
+            // Add user message
+            val userMessage = AiMessage(
+                id = System.currentTimeMillis().toString(),
+                content = query,
+                isFromUser = true,
+                timestamp = System.currentTimeMillis()
+            )
+
+            _aiMessages.value += userMessage
+
+            // Simulate AI response (replace with real AI later)
+            delay(1000) // Simulate AI processing
+
+            val aiResponse = AiMessage(
+                id = (System.currentTimeMillis() + 1).toString(),
+                content = "I'm Ayaana AI! You asked: \"$query\". This is a mock response. When we integrate real AI, I'll provide helpful answers!",
+                isFromUser = false,
+                timestamp = System.currentTimeMillis()
+            )
+
+            _aiMessages.value += aiResponse
+            _isAiResponding.value = false
+        }
+    }
+
+    fun clearAiConversation() {
+        _aiMessages.value = emptyList()
     }
 }

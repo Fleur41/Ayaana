@@ -21,9 +21,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.sam.ayaana.authentication.forgotpassword.ForgotPasswordScreen
+import com.sam.ayaana.presentation.screens.aiassistant.AiAssistantScreen
 import com.sam.ayaana.presentation.screens.chat.ChatDetailScreen
 import com.sam.ayaana.presentation.screens.chat.ChatListScreen
 import com.sam.ayaana.presentation.screens.create.CreatePostScreen
+import com.sam.ayaana.presentation.screens.hashtag.HashtagScreen
 import com.sam.ayaana.presentation.screens.home.HomeScreen
 import com.sam.ayaana.presentation.screens.menu.MenuScreen
 import com.sam.ayaana.presentation.screens.privacy.PrivacyScreen
@@ -283,6 +285,24 @@ fun AppNavigation(
             // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
         ) {
             PrivacyScreen(navController = navController)
+        }
+
+        // AiAssistant
+        composable(
+            route = NavigationDestination.AiAssistant.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) {
+            AiAssistantScreen(navController = navController)
+        }
+
+        // HashtagGenerator
+        composable(
+            route = NavigationDestination.HashtagGenerator.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) {
+            HashtagScreen(navController = navController)
         }
     }
 }
