@@ -6,7 +6,8 @@ data class CreateOption(
     val title: String,
     val icon: ImageVector,
     val description: String,
-    val route: String
+    val route: String,
+    // val createType: String = ""
 )
 
 enum class CreateType {

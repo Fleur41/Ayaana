@@ -72,6 +72,9 @@ sealed interface NavigationDestination {
             get() = "Create Post"
         override val route: String
             get() = "create_post"
+        const val createTypeArg = "createType"
+        val routeWithArgs: String
+            get() = "$route?$createTypeArg={$createTypeArg}"
     }
 
     data object CreatePostDetails : NavigationDestination {

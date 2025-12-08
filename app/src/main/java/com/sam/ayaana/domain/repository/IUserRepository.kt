@@ -8,8 +8,14 @@ import com.sam.ayaana.Utils.toUserEntity
 import com.sam.ayaana.Utils.toUserResponse
 import com.sam.ayaana.data.local.dao.UserDao
 import com.sam.ayaana.data.remote.api.UserApi
+import com.sam.ayaana.datastore.DatastoreRepository
 import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 
 interface IUserRepository{
     suspend fun getCurrentUser(): Flow<Result<User>>
@@ -20,12 +26,44 @@ interface IUserRepository{
     suspend fun updateProfile(user: User): Result<Boolean>
     suspend fun getFollowers(userId: String): Flow<Result<List<User>>>
     suspend fun getFollowing(userId: String): Flow<Result<List<User>>>
+
+    val currentUserProfileImage: Flow<String?>
+    suspend fun updateCurrentUserProfileImage(path: String?)
 }
 
 class UserRepositoryImpl @Inject constructor(
     private val userApi: UserApi,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val datastoreRepository: DatastoreRepository
 ) : IUserRepository {
+
+    private val _currentUserProfileImage = MutableStateFlow<String?>(null)
+    override val currentUserProfileImage: Flow<String?> = _currentUserProfileImage
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    init {
+        // Load saved image when repository starts
+        scope.launch{
+            loadSavedProfileImage()
+        }
+    }
+
+    private suspend fun loadSavedProfileImage() {
+        datastoreRepository.getProfileImagePath()?.let { path ->
+            _currentUserProfileImage.value = path
+        }
+    }
+
+    // ✅ ADDED: Implementation
+    override suspend fun updateCurrentUserProfileImage(path: String?) {
+        if (path != null) {
+            datastoreRepository.saveProfileImagePath(path)
+        } else {
+            datastoreRepository.clearProfileImagePath()
+        }
+        _currentUserProfileImage.value = path
+    }
 
     override suspend fun getCurrentUser(): Flow<Result<User>> = flow {
         emit(Result.Loading)

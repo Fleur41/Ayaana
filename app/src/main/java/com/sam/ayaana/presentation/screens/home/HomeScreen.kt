@@ -28,7 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
@@ -36,16 +38,17 @@ import com.sam.ayaana.R
 import com.sam.ayaana.navigation.NavigationDestination
 import com.sam.ayaana.presentation.component.homesection.PostsSection
 import kotlinx.coroutines.delay
-
+import java.io.File
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavHostController? = null,
-    onDetailClick: () -> Unit = {}
 ) {
 
-    var hasProfilePicture by remember { mutableStateOf(false) }
+    // COLLECT PROFILE IMAGE PATH FROM SHARED REPOSITORY
+    val profileImagePath by viewModel.profileImagePath.collectAsStateWithLifecycle(initialValue = null)
+
     val currentRoute = if (navController != null) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         navBackStackEntry?.destination?.route
@@ -69,10 +72,14 @@ fun HomeScreen(
                     .background(Color.White),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // PASS PROFILE IMAGE PATH TO STORY VIEW
                 InstagramStoryView(
                     navController = navController,
-                    hasProfilePicture = hasProfilePicture,
-                    onProfilePictureAdded = { hasProfilePicture = true }
+                    profileImagePath = profileImagePath,
+                    onStoryClick = {},
+                    onAddPhotoClick = {
+                        navController?.navigate(NavigationDestination.CreatePost.route)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -163,7 +170,8 @@ fun HomeScreen(
 
             NavigationBarItem(
                 icon = {
-                    if (hasProfilePicture) {
+                    // USE SHARED PROFILE IMAGE PATH
+                    if (profileImagePath != null) {
                         Box(
                             modifier = Modifier
                                 .size(28.dp)
@@ -173,7 +181,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(CircleShape),
-                                model = "https://picsum.photos/id/100/200/300",
+                                model = File(profileImagePath!!).toUri(),
                                 contentDescription = "Profile",
                                 contentScale = ContentScale.Crop
                             )
@@ -247,9 +255,9 @@ fun InstagramTopView(
 @Composable
 fun InstagramStoryView(
     navController: NavHostController? = null,
+    profileImagePath: String? = null,
     onStoryClick: (Int) -> Unit = {},
-    hasProfilePicture: Boolean = false,
-    onProfilePictureAdded: () -> Unit = {}
+    onAddPhotoClick: () -> Unit = {}
 ) {
     var stories by remember { mutableStateOf<List<Int>>(emptyList()) }
     var currentPage by remember { mutableIntStateOf(1) }
@@ -296,12 +304,9 @@ fun InstagramStoryView(
             UserStoryItem(
                 itemId = 0,
                 username = "Your Story",
+                profileImagePath = profileImagePath, // ✅ PASS SHARED IMAGE
                 onItemClick = { Log.d("TAG", "UserStoryItem clicked") },
-                hasProfilePicture = hasProfilePicture,
-                onProfilePictureAdded = onProfilePictureAdded,
-                onAddPhotoClick = {
-                    navController?.navigate(NavigationDestination.CreatePost.route)
-                }
+                onAddPhotoClick = onAddPhotoClick
             )
         }
 
@@ -413,9 +418,9 @@ fun UserStoryItem(
     modifier: Modifier = Modifier,
     itemId: Int,
     username: String,
+    profileImagePath: String?,
     onItemClick: () -> Unit,
     onAddPhotoClick: () -> Unit = {},
-    hasProfilePicture: Boolean = false,
     onProfilePictureAdded: () -> Unit = {}
 ) {
     Column(
@@ -434,14 +439,23 @@ fun UserStoryItem(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { onItemClick() } // Added this
+                    ) { onItemClick() }
             ) {
-                if (hasProfilePicture) {
+                // ✅ USE SHARED PROFILE IMAGE PATH
+                val imageModel = remember(profileImagePath) {
+                    if (profileImagePath != null) {
+                        File(profileImagePath).toUri()
+                    } else {
+                        null
+                    }
+                }
+
+                if (imageModel != null) {
                     AsyncImage(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape),
-                        model = "https://picsum.photos/id/100/200/300",
+                        model = imageModel,
                         contentDescription = "Your story",
                         contentScale = ContentScale.Crop,
                         placeholder = painterResource(R.drawable.placeholder),
@@ -516,6 +530,7 @@ private fun UserStoryItemPreview() {
     UserStoryItem(
         itemId = 0,
         username = "Your Story",
+        profileImagePath = null,
         onItemClick = {}
     )
 }
@@ -564,6 +579,7 @@ private fun HomeScreenPreview() {
 //import androidx.compose.ui.unit.dp
 //import androidx.compose.ui.unit.sp
 //import androidx.hilt.navigation.compose.hiltViewModel
+//import androidx.lifecycle.compose.collectAsStateWithLifecycle
 //import androidx.navigation.NavHostController
 //import androidx.navigation.compose.currentBackStackEntryAsState
 //import coil.compose.AsyncImage
@@ -572,6 +588,7 @@ private fun HomeScreenPreview() {
 //import com.sam.ayaana.presentation.component.homesection.PostsSection
 //import kotlinx.coroutines.delay
 //
+//
 //@Composable
 //fun HomeScreen(
 //    viewModel: HomeViewModel = hiltViewModel(),
@@ -579,6 +596,7 @@ private fun HomeScreenPreview() {
 //    onDetailClick: () -> Unit = {}
 //) {
 //
+//    val profileImagePath by viewModel.profileImagePath.collectAsStateWithLifecycle(initialValue = null)
 //    var hasProfilePicture by remember { mutableStateOf(false) }
 //    val currentRoute = if (navController != null) {
 //        val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -600,7 +618,7 @@ private fun HomeScreenPreview() {
 //                modifier = Modifier
 //                    .fillMaxSize()
 //                    .weight(1f)
-//                    .background(MaterialTheme.colorScheme.background),
+//                    .background(Color.White),
 //                horizontalAlignment = Alignment.CenterHorizontally
 //            ) {
 //                InstagramStoryView(
@@ -640,15 +658,15 @@ private fun HomeScreenPreview() {
 //
 //        NavigationBar(
 //            modifier = Modifier.align(Alignment.BottomCenter),
-//            containerColor = MaterialTheme.colorScheme.surface, // CHANGED: Use surface color
-//            contentColor = MaterialTheme.colorScheme.onSurface // CHANGED: Use onSurface color
+//            containerColor = Color.Black,
+//            contentColor = Color.White
 //        ) {
 //            NavigationBarItem(
 //                icon = {
 //                    Icon(
 //                        painter = painterResource(id = if (currentRoute == "home") R.drawable.ic_home_filled else R.drawable.ic_home_outlined),
 //                        contentDescription = "Home",
-//                        tint = if (currentRoute == "home") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+//                        tint = if (currentRoute == "home") Color.White else Color.Gray
 //                    )
 //                },
 //                label = { Text(text = "", fontSize = 0.sp) },
@@ -661,7 +679,7 @@ private fun HomeScreenPreview() {
 //                    Icon(
 //                        painter = painterResource(id = if (currentRoute == "reels") R.drawable.ic_reels_filled else R.drawable.ic_reels_outlined),
 //                        contentDescription = "Reels",
-//                        tint = if (currentRoute == "reels") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+//                        tint = if (currentRoute == "reels") Color.White else Color.Gray
 //                    )
 //                },
 //                label = { Text(text = "", fontSize = 0.sp) },
@@ -674,7 +692,7 @@ private fun HomeScreenPreview() {
 //                    Icon(
 //                        painter = painterResource(id = if (currentRoute == "chat") R.drawable.ic_chat_filled else R.drawable.ic_chat_outlined),
 //                        contentDescription = "Chat",
-//                        tint = if (currentRoute == "chat") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+//                        tint = if (currentRoute == "chat") Color.White else Color.Gray
 //                    )
 //                },
 //                label = { Text(text = "", fontSize = 0.sp) },
@@ -687,7 +705,7 @@ private fun HomeScreenPreview() {
 //                    Icon(
 //                        painter = painterResource(id = if (currentRoute == "search") R.drawable.ic_search_filled else R.drawable.ic_search_outlined),
 //                        contentDescription = "Search",
-//                        tint = if (currentRoute == "search") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+//                        tint = if (currentRoute == "search") Color.White else Color.Gray
 //                    )
 //                },
 //                label = { Text(text = "", fontSize = 0.sp) },
@@ -702,11 +720,6 @@ private fun HomeScreenPreview() {
 //                            modifier = Modifier
 //                                .size(28.dp)
 //                                .clip(CircleShape)
-//                                .border(
-//                                    1.dp,
-//                                    if (currentRoute == "profile") MaterialTheme.colorScheme.primary else Color.Transparent,
-//                                    CircleShape
-//                                )
 //                        ) {
 //                            AsyncImage(
 //                                modifier = Modifier
@@ -721,7 +734,7 @@ private fun HomeScreenPreview() {
 //                        Icon(
 //                            painter = painterResource(id = if (currentRoute == "profile") R.drawable.ic_profile_filled else R.drawable.ic_profile_outlined),
 //                            contentDescription = "Profile",
-//                            tint = if (currentRoute == "profile") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+//                            tint = if (currentRoute == "profile") Color.White else Color.Gray
 //                        )
 //                    }
 //                },
@@ -732,6 +745,7 @@ private fun HomeScreenPreview() {
 //        }
 //    }
 //}
+//
 //
 //@Composable
 //fun InstagramTopView(
@@ -780,6 +794,7 @@ private fun HomeScreenPreview() {
 //        }
 //    }
 //}
+//
 //
 //@Composable
 //fun InstagramStoryView(
@@ -883,7 +898,6 @@ private fun HomeScreenPreview() {
 //                    CircularProgressIndicator(
 //                        modifier = Modifier.size(20.dp),
 //                        strokeWidth = 2.dp,
-//                        color = MaterialTheme.colorScheme.primary
 //                    )
 //                }
 //            }
@@ -899,10 +913,8 @@ private fun HomeScreenPreview() {
 //    onItemClick: () -> Unit
 //) {
 //    val gradientColors = listOf(
-//        MaterialTheme.colorScheme.primary,
-//        MaterialTheme.colorScheme.primaryContainer,
-//        MaterialTheme.colorScheme.secondary,
-//        MaterialTheme.colorScheme.tertiary
+//        Color(0xFF833AB4), Color(0xFFC13584), Color(0xFFE1306C), Color(0xFFFD1D1D),
+//        Color(0xFFF56040), Color(0xFFF77737), Color(0xFFFCAF45), Color(0xFFFFDC80)
 //    )
 //
 //    Column(
@@ -918,7 +930,7 @@ private fun HomeScreenPreview() {
 //                    shape = CircleShape
 //                )
 //                .padding(2.dp)
-//                .background(MaterialTheme.colorScheme.surface, CircleShape)
+//                .background(Color.White, CircleShape)
 //                .clickable(
 //                    interactionSource = remember { MutableInteractionSource() },
 //                    indication = null
@@ -943,8 +955,7 @@ private fun HomeScreenPreview() {
 //            text = username,
 //            style = MaterialTheme.typography.bodySmall,
 //            fontSize = 12.sp,
-//            maxLines = 1,
-//            color = MaterialTheme.colorScheme.onBackground
+//            maxLines = 1
 //        )
 //    }
 //}
@@ -971,11 +982,11 @@ private fun HomeScreenPreview() {
 //                modifier = Modifier
 //                    .size(64.dp)
 //                    .clip(CircleShape)
-//                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+//                    .background(Color.Black, CircleShape)
 //                    .clickable(
 //                        interactionSource = remember { MutableInteractionSource() },
 //                        indication = null
-//                    ) { onItemClick() }
+//                    ) { onItemClick() } // Added this
 //            ) {
 //                if (hasProfilePicture) {
 //                    AsyncImage(
@@ -992,13 +1003,13 @@ private fun HomeScreenPreview() {
 //                    Box(
 //                        modifier = Modifier
 //                            .fillMaxSize()
-//                            .background(MaterialTheme.colorScheme.surfaceVariant),
+//                            .background(Color.LightGray),
 //                        contentAlignment = Alignment.Center
 //                    ) {
 //                        Icon(
 //                            imageVector = Icons.Outlined.Person,
 //                            contentDescription = "Add profile picture",
-//                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+//                            tint = Color.White,
 //                            modifier = Modifier.size(32.dp)
 //                        )
 //                    }
@@ -1009,8 +1020,8 @@ private fun HomeScreenPreview() {
 //                modifier = Modifier
 //                    .align(Alignment.BottomEnd)
 //                    .size(20.dp)
-//                    .background(MaterialTheme.colorScheme.surface, CircleShape)
-//                    .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+//                    .background(Color.White, CircleShape)
+//                    .border(2.dp, Color.White, CircleShape)
 //                    .clickable(
 //                        interactionSource = remember { MutableInteractionSource() },
 //                        indication = null
@@ -1036,8 +1047,7 @@ private fun HomeScreenPreview() {
 //            text = username,
 //            style = MaterialTheme.typography.bodySmall,
 //            fontSize = 12.sp,
-//            maxLines = 1,
-//            color = MaterialTheme.colorScheme.onBackground
+//            maxLines = 1
 //        )
 //    }
 //}
@@ -1045,39 +1055,32 @@ private fun HomeScreenPreview() {
 //@Preview
 //@Composable
 //private fun StoryItemPreview() {
-//    MaterialTheme {
-//        StoryItem(
-//            itemId = 1,
-//            username = "Sammir Nasri",
-//            onItemClick = {}
-//        )
-//    }
+//    StoryItem(
+//        itemId = 1,
+//        username = "Sammir Nasri",
+//        onItemClick = {}
+//    )
 //}
 //
 //@Preview
 //@Composable
 //private fun UserStoryItemPreview() {
-//    MaterialTheme {
-//        UserStoryItem(
-//            itemId = 0,
-//            username = "Your Story",
-//            onItemClick = {}
-//        )
-//    }
+//    UserStoryItem(
+//        itemId = 0,
+//        username = "Your Story",
+//        onItemClick = {}
+//    )
 //}
 //
 //@Preview
 //@Composable
 //private fun InstagramStoryViewPreview() {
-//    MaterialTheme {
-//        InstagramStoryView()
-//    }
+//    InstagramStoryView()
 //}
 //
 //@Preview
 //@Composable
 //private fun HomeScreenPreview() {
-//    MaterialTheme {
-//        HomeScreen()
-//    }
+//    HomeScreen()
 //}
+//

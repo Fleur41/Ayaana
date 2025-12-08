@@ -195,7 +195,8 @@ fun AppNavigation(
         ) { backStackEntry ->
             CreatePostScreen(
                 navController = navController,
-                viewModel = hiltViewModel(backStackEntry)
+                viewModel = hiltViewModel(backStackEntry),
+
             )
         }
 

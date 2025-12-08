@@ -16,6 +16,7 @@ class DatastoreRepository @Inject constructor(
     val privacySetting: Flow<Boolean> = datastoreManager.privacySetting
 
 
+
     suspend fun saveIsAuthenticated(authenticated: Boolean) {
         datastoreManager.saveIsAuthenticated(authenticated)
     }

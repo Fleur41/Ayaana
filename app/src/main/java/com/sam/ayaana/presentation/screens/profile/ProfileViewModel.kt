@@ -16,6 +16,7 @@ import com.sam.ayaana.domain.model.PostType
 import com.sam.ayaana.domain.model.ProfileTab
 import com.sam.ayaana.domain.model.ProfileUiState
 import com.sam.ayaana.domain.model.User
+import com.sam.ayaana.domain.repository.IUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -30,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val datastoreRepository: DatastoreRepository
+    private val datastoreRepository: DatastoreRepository,
+    private val userRepository: IUserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -40,15 +42,6 @@ class ProfileViewModel @Inject constructor(
         loadProfile()
     }
 
-//    private fun loadInitialData() {
-//        viewModelScope.launch {
-//            // 1. First load saved image
-//            loadSavedProfileImage()
-//
-//            // 2. Then load profile data (will preserve the image)
-//            loadProfile()
-//        }
-//    }
     // In ProfileViewModel.kt - UPDATE loadProfile()
     fun loadProfile(userId: String? = null) {
         viewModelScope.launch {
@@ -87,48 +80,6 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-//    fun loadProfile(userId: String? = null) {
-//        viewModelScope.launch {
-//            _uiState.update { it.copy(isLoading = true, error = null) }
-//
-//            try {
-//                delay(1000) // Simulate API call
-//                val isCurrentUser = userId == null
-//
-//                // Mock user data
-//                val mockUser = createMockUser(isCurrentUser, userId)
-//
-//                // CRITICAL FIX: Preserve existing localProfileUri if it exists
-//                val currentUser = _uiState.value.user
-//                val userWithSavedImage = if (currentUser?.localProfileUri != null) {
-//                    mockUser.copy(localProfileUri = currentUser.localProfileUri)
-//                } else {
-//                    mockUser
-//                }
-//
-//                val mockPosts = createMockPosts(isCurrentUser, userWithSavedImage)
-//                val mockTaggedPosts = if (!isCurrentUser) createMockTaggedPosts() else emptyList()
-//                val mockReels = createMockReels(userWithSavedImage)
-//
-//                _uiState.update {
-//                    it.copy(
-//                        user = userWithSavedImage, // Use the user WITH saved image
-//                        posts = mockPosts,
-//                        taggedPosts = mockTaggedPosts,
-//                        reels = mockReels,
-//                        isLoading = false
-//                    )
-//                }
-//            } catch (e: Exception) {
-//                _uiState.update {
-//                    it.copy(
-//                        isLoading = false,
-//                        error = e.message ?: "Failed to load profile"
-//                    )
-//                }
-//            }
-//        }
-//    }
 
     private fun createMockUser(isCurrentUser: Boolean, userId: String?): User {
         return if (isCurrentUser) {
@@ -344,35 +295,6 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-//    fun loadSavedProfileImage() {
-//        viewModelScope.launch {
-//            Log.d("ProfileViewModel", "Loading saved profile image...")
-//
-//            // Try to get path from Datastore first
-//            val savedPath = datastoreRepository.getProfileImagePath()
-//            Log.d("ProfileViewModel", "Saved path from Datastore: $savedPath")
-//
-//            if (savedPath != null && File(savedPath).exists()) {
-//                Log.d("ProfileViewModel", "File exists at path: $savedPath")
-//                // Path exists in Datastore and file exists
-//                updateUiWithLocalImage(savedPath)
-//            } else {
-//                Log.d("ProfileViewModel", "No saved path in Datastore, checking app storage...")
-//                // Check if there's a profile image in app storage
-//                val existingPath = ImageUtils.getExistingProfileImagePath(context)
-//                Log.d("ProfileViewModel", "Existing path in storage: $existingPath")
-//
-//                existingPath?.let { path ->
-//                    Log.d("ProfileViewModel", "Saving path to Datastore: $path")
-//                    // Save it to Datastore for future
-//                    datastoreRepository.saveProfileImagePath(path)
-//                    updateUiWithLocalImage(path)
-//                } ?: run {
-//                    Log.d("ProfileViewModel", "No profile image found anywhere")
-//                }
-//            }
-//        }
-//    }
 
     // NEW: Helper to update UI with local image
     // In ProfileViewModel.kt - Update updateUiWithLocalImage
@@ -427,9 +349,10 @@ class ProfileViewModel @Inject constructor(
                     // 2. Clean up old images (keep only current)
                     ImageUtils.cleanUpOldProfileImages(context, path)
 
+                    userRepository.updateCurrentUserProfileImage(path)
                     // 3. Save path to Datastore (persistent storage)
-                    Log.d("ProfileViewModel", "Saving path to Datastore: $path")
-                    datastoreRepository.saveProfileImagePath(path)
+                    // Log.d("ProfileViewModel", "Saving path to Datastore: $path")
+                    // datastoreRepository.saveProfileImagePath(path)
 
                     // 4. Update UI with the permanent Uri
                     updateUiWithLocalImage(path)
@@ -437,19 +360,5 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-
-    // Add this function to ProfileViewModel.kt
-//    fun debugCheckState() {
-//        Log.d("ProfileViewModel", "=== DEBUG STATE CHECK ===")
-//        Log.d("ProfileViewModel", "Current user: ${_uiState.value.user}")
-//        Log.d("ProfileViewModel", "User localProfileUri: ${_uiState.value.user?.localProfileUri}")
-//        Log.d("ProfileViewModel", "User profilePicture: ${_uiState.value.user?.profilePicture}")
-//        Log.d("ProfileViewModel", "User isCurrentUser: ${_uiState.value.user?.isCurrentUser}")
-//
-//        // Check if User class has localProfileUri field
-//        Log.d("ProfileViewModel", "User class fields: ${_uiState.value.user?.javaClass?.declaredFields?.map { it.name }}")
-//    }
-
-
 
 }

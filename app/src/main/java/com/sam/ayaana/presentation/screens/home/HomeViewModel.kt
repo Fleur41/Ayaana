@@ -16,13 +16,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import com.sam.ayaana.Utils.Result
+import com.sam.ayaana.domain.repository.IUserRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val postRepository: IPostRepository
+    private val postRepository: IPostRepository,
+    private val userRepository: IUserRepository
 ) : ViewModel() {
 
+    val profileImagePath: Flow<String?> = userRepository.currentUserProfileImage
 //    private val _currentTimeline = MutableStateFlow(TimelineType.HOME)
 //    val currentTimeline = _currentTimeline.asStateFlow()
 
@@ -115,7 +118,7 @@ class HomeViewModel @Inject constructor(
 //                    println("Failed to like post: $postId")
 //                }
 //                else -> {
-//                    //Hii sio lazima
+//
 //                    // println("Unknown error occurred")
 //                }
 //            }
@@ -149,8 +152,7 @@ class HomeViewModel @Inject constructor(
 
     fun savePost(postId: String) {
         viewModelScope.launch {
-           val result = postRepository.savePost(postId)
-            when (result) {
+           when (val result = postRepository.savePost(postId)) {
                 is Result.Success -> {
                     println("Successfully saved post: $postId")
                 }
@@ -170,6 +172,6 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-enum class TimelineType{
-    HOME, EXPLORE
-}
+//enum class TimelineType{
+//    HOME, EXPLORE
+//}

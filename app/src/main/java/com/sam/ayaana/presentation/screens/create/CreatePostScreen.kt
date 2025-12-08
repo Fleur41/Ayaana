@@ -23,16 +23,18 @@ import com.sam.ayaana.Utils.GalleryLauncherResult
 import com.sam.ayaana.domain.model.CreateOption
 import com.sam.ayaana.Utils.CreateOptions
 import com.sam.ayaana.Utils.GalleryPicker
+import com.sam.ayaana.domain.model.CreateType
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
     navController: NavHostController? = null,
-    viewModel: CreatePostViewModel = hiltViewModel()
-) {
-    val context = LocalContext.current
+    viewModel: CreatePostViewModel = hiltViewModel(),
 
+) {
+
+    val context = LocalContext.current
     // State collection
     val uiState by viewModel.uiState.collectAsState()
     val selectedMedia by viewModel.selectedMedia.collectAsState()
@@ -102,7 +104,7 @@ fun CreatePostScreen(
                                             context = context,
                                             mediaUris = selectedMedia,
                                             caption = "Sample caption",
-                                            type = com.sam.ayaana.domain.model.CreateType.POST
+                                            type = CreateType.POST
                                         )
                                     }
                                 }
