@@ -28,6 +28,8 @@ import com.sam.ayaana.presentation.screens.create.CreatePostScreen
 import com.sam.ayaana.presentation.screens.hashtag.HashtagScreen
 import com.sam.ayaana.presentation.screens.home.HomeScreen
 import com.sam.ayaana.presentation.screens.menu.MenuScreen
+import com.sam.ayaana.presentation.screens.notifications.FollowRequestsScreen
+import com.sam.ayaana.presentation.screens.notifications.NotificationsScreen
 import com.sam.ayaana.presentation.screens.privacy.PrivacyScreen
 import com.sam.ayaana.presentation.screens.profile.ProfileScreen
 import com.sam.ayaana.presentation.screens.reels.ReelsScreen
@@ -305,5 +307,24 @@ fun AppNavigation(
         ) {
             HashtagScreen(navController = navController)
         }
+
+        // Notifications Screen
+        composable(
+            route = NavigationDestination.Notifications.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) {
+            NotificationsScreen(navController = navController)
+        }
+
+        // Follow Requests Screen
+        composable(
+            route = NavigationDestination.FollowRequests.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) {
+            FollowRequestsScreen(navController = navController)
+        }
+
     }
 }

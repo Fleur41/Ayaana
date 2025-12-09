@@ -242,10 +242,12 @@ fun InstagramTopView(
             Icon(
                 imageVector = Icons.Default.Favorite,
                 contentDescription = "Notifications",
-                tint = MaterialTheme.colorScheme.onBackground,
+                tint = Color(0xFFED4956),
                 modifier = Modifier
-                    .size(24.dp)
-                    .clickable { }
+                    .size(32.dp)
+                    .clickable {
+                        navController?.navigate(NavigationDestination.Notifications.route)
+                    }
             )
         }
     }

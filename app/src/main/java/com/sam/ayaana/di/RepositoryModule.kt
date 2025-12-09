@@ -10,10 +10,12 @@ import com.sam.ayaana.domain.repository.IActivityRepository
 import com.sam.ayaana.domain.repository.IAiAssistantRepository
 import com.sam.ayaana.domain.repository.IChatRepository
 import com.sam.ayaana.domain.repository.IHashtagRepository
+import com.sam.ayaana.domain.repository.INotificationsRepository
 import com.sam.ayaana.domain.repository.IPostRepository
 import com.sam.ayaana.domain.repository.IRecentSearchesRepository
 import com.sam.ayaana.domain.repository.ISocialAuthRepository
 import com.sam.ayaana.domain.repository.IUserRepository
+import com.sam.ayaana.domain.repository.NotificationsRepositoryImpl
 import com.sam.ayaana.domain.repository.PostRepositoryImpl
 import com.sam.ayaana.domain.repository.RecentSearchesRepositoryImpl
 import com.sam.ayaana.domain.repository.SocialAuthRepositoryImpl
@@ -55,6 +57,8 @@ abstract class RepositoryModule {
     @Binds
     abstract fun bindHashtagRepository(impl: HashtagRepositoryImpl): IHashtagRepository
 
+    @Binds
+    abstract fun bindNotificationsRepository(impl: NotificationsRepositoryImpl): INotificationsRepository
 }
 
 

@@ -91,22 +91,7 @@ fun MenuScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = "Search",
-//                    fontSize = 16.sp,
-//                    fontWeight = FontWeight.Medium
-//                )
-//                Icon(
-//                    imageVector = Icons.Default.Search,
-//                    contentDescription = "Search",
-//                    modifier = Modifier.size(24.dp)
-//                )
-//            }
+
         }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

@@ -28,6 +28,7 @@ generativeai = "0.9.0"
 uiGraphics = "1.9.5"
 uiTest = "1.9.5"
 uiText = "1.10.0"
+firebaseMessaging = "25.0.1"
 
 
 [libraries]
@@ -74,7 +75,6 @@ moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
-#moshi-kotlin-codegen-ksp = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
 
 
 # HTTP Client
@@ -84,6 +84,7 @@ okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-i
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 
 # Google Services
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }

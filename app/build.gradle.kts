@@ -68,6 +68,8 @@ dependencies {
     //retrofit dep
     implementation(libs.converter.moshi)
     implementation(libs.retrofit)
+    implementation(libs.moshi.kotlin)
+
 
     //datastore
     implementation(libs.androidx.datastore.preferences)
@@ -75,6 +77,10 @@ dependencies {
     //FirebaseBom
     implementation(platform(libs.firebase.bom)) // Version from your dependencies
 
+    // firebase-messaging
+    implementation(libs.firebase.messaging)
+    // implementation(libs.firebase.messaging.ktx)
+    // implementation("com.google.firebase:firebase-messaging")
     //Coil
     implementation(libs.coil.compose)
 
@@ -95,7 +101,6 @@ dependencies {
     implementation(libs.converter.moshi)
     implementation(libs.okhttp.logging.interceptor)
     ksp(libs.moshi.kotlin.codegen)
-    // ksp(libs.moshi.kotlin.codegen.ksp)
 
     // Pagination
     implementation (libs.androidx.paging.runtime)
@@ -108,10 +113,6 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
-
-    // Emoji picker
-//    implementation("com.vanniktech:emoji-google:0.17.0")
-//    implementation("androidx.emoji:emoji:1.2.0")
 
     // Voice recording
     implementation(libs.androidx.media)

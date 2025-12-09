@@ -1,5 +1,9 @@
 package com.sam.ayaana.navigation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.ui.graphics.vector.ImageVector
+
 sealed interface NavigationDestination {
     val title: String
     val route: String
@@ -158,5 +162,19 @@ sealed interface NavigationDestination {
             get() = "Hashtag Generator"
         override val route: String
             get() = "hashtag_generator"
+    }
+
+    data object Notifications : NavigationDestination {
+        override val title: String
+            get() = "Notifications"
+        override val route: String
+            get() = "notifications"
+    }
+
+    data object FollowRequests : NavigationDestination {
+        override val title: String
+            get() = "Follow Requests"
+        override val route: String
+            get() = "followRequests"
     }
 }
