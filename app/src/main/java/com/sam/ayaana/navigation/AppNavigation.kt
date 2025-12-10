@@ -30,6 +30,7 @@ import com.sam.ayaana.presentation.screens.home.HomeScreen
 import com.sam.ayaana.presentation.screens.menu.MenuScreen
 import com.sam.ayaana.presentation.screens.notifications.FollowRequestsScreen
 import com.sam.ayaana.presentation.screens.notifications.NotificationsScreen
+import com.sam.ayaana.presentation.screens.notifications.NotificationsSettingsScreen
 import com.sam.ayaana.presentation.screens.privacy.PrivacyScreen
 import com.sam.ayaana.presentation.screens.profile.ProfileScreen
 import com.sam.ayaana.presentation.screens.reels.ReelsScreen
@@ -324,6 +325,14 @@ fun AppNavigation(
             // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
         ) {
             FollowRequestsScreen(navController = navController)
+        }
+
+        composable(
+            route = NavigationDestination.NotificationsSettings.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) {
+            NotificationsSettingsScreen(navController = navController)
         }
 
     }

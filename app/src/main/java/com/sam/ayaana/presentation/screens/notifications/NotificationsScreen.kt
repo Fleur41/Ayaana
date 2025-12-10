@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -708,9 +709,10 @@ fun NotificationItem(
                             containerColor = Color(0xFF0095F6)
                         ),
                         modifier = Modifier
-                            .height(28.dp)
-                            .width(70.dp),
-                        shape = RoundedCornerShape(4.dp)
+                            .height(32.dp)
+                            .width(88.dp),
+                        shape = RoundedCornerShape(4.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
                     ) {
                         Text(
                             text = "Follow",

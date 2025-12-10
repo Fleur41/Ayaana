@@ -1,4 +1,3 @@
-
 package com.sam.ayaana.domain.repository
 
 import com.sam.ayaana.Utils.Result

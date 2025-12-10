@@ -11,9 +11,33 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.sam.ayaana.Utils.FirebaseNotificationService
+import com.sam.ayaana.navigation.NavigationDestination
 import com.sam.ayaana.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.concurrent.thread
@@ -60,6 +84,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun showPermissionRationale() {
         Toast.makeText(
             this,
@@ -74,7 +99,75 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
+//@Composable
+//fun NotificationTestScreen(startDestinationString: String) {
+//
+//    val context = LocalContext.current
+//    var showTestButton by remember { mutableStateOf(true) }
+//
+//    Box(modifier = Modifier.fillMaxSize()) {
+//        // Your main app
+//        FirebaseApp(startDestination)
+//
+//        // Test button overlay (for development only)
+//        if (showTestButton) {
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(16.dp),
+//                verticalArrangement = Arrangement.Bottom,
+//                horizontalAlignment = Alignment.End
+//            ) {
+//                Button(
+//                    onClick = {
+//                        // Test local notification
+//                        FirebaseNotificationService().triggerTestNotification(
+//                            context = context,
+//                            title = "Test Notification",
+//                            message = "This is a test notification from Ayaana!"
+//                        )
+//
+//                        Toast.makeText(context, "Test notification sent!", Toast.LENGTH_SHORT).show()
+//                    },
+//                    modifier = Modifier
+//                        .width(120.dp)
+//                        .height(48.dp)
+//                ) {
+//                    Text("Test Notify")
+//                }
+//
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                Button(
+//                    onClick = {
+//                        // Hide test button
+//                        showTestButton = false
+//                    },
+//                    modifier = Modifier
+//                        .width(120.dp)
+//                        .height(48.dp),
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.Red
+//                    )
+//                ) {
+//                    Text("Hide")
+//                }
+//            }
+//        } else {
+//            // Small floating button to show test button again
+//            Button(
+//                onClick = { showTestButton = true },
+//                modifier = Modifier
+//                    .align(Alignment.BottomEnd)
+//                    .padding(16.dp)
+//                    .size(48.dp),
+//                shape = androidx.compose.foundation.shape.CircleShape
+//            ) {
+//                Text("T")
+//            }
+//        }
+//    }
+//}
 
 //
 //import android.Manifest

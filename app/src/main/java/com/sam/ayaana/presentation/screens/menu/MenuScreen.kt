@@ -115,7 +115,9 @@ fun MenuScreen(
         MenuItem(
             icon = Icons.Default.Notifications,
             title = "Notifications",
-            onClick = { /* Navigate to notifications */ }
+            onClick = {
+                navController.navigate(NavigationDestination.NotificationsSettings.route)
+            }
         )
 
         // 4. Comments
@@ -135,14 +137,6 @@ fun MenuScreen(
                 navController.navigate(NavigationDestination.Privacy.route)
             }
         )
-//        MenuItemWithToggle(
-//            icon = Icons.Default.Settings,
-//            title = "Privacy Settings",
-//            isChecked = isPrivateAccount,
-//            onCheckedChange = { isPrivate ->
-//                viewModel.togglePrivacySetting(isPrivate)
-//            }
-//        )
 
         // 6. Theme - Navigates to ThemeScreen (not toggle here)
         MenuItem(

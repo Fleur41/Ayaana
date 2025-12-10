@@ -177,4 +177,18 @@ sealed interface NavigationDestination {
         override val route: String
             get() = "followRequests"
     }
+
+    data object NotificationsFeed : NavigationDestination {
+        override val title: String
+            get() = "Notifications"
+        override val route: String
+            get() = "notifications_feed"
+    }
+
+    data object NotificationsSettings : NavigationDestination {
+        override val title: String
+            get() = "Notifications Settings"
+        override val route: String
+            get() = "notifications_settings"
+    }
 }

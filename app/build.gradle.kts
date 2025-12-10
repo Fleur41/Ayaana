@@ -107,7 +107,10 @@ dependencies {
     implementation(libs.androidx.paging.compose)
 
     // Accompanist
-    implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation (libs.accompanist.permissions)
+
+    // Timber
+    implementation(libs.timber)
 
     // Camera and permissions
     implementation(libs.androidx.camera.camera2)
