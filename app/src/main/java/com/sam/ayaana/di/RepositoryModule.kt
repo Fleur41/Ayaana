@@ -13,11 +13,13 @@ import com.sam.ayaana.domain.repository.IHashtagRepository
 import com.sam.ayaana.domain.repository.INotificationsRepository
 import com.sam.ayaana.domain.repository.IPostRepository
 import com.sam.ayaana.domain.repository.IRecentSearchesRepository
+import com.sam.ayaana.domain.repository.IReelsRepository
 import com.sam.ayaana.domain.repository.ISocialAuthRepository
 import com.sam.ayaana.domain.repository.IUserRepository
 import com.sam.ayaana.domain.repository.NotificationsRepositoryImpl
 import com.sam.ayaana.domain.repository.PostRepositoryImpl
 import com.sam.ayaana.domain.repository.RecentSearchesRepositoryImpl
+import com.sam.ayaana.domain.repository.ReelsRepositoryImpl
 import com.sam.ayaana.domain.repository.SocialAuthRepositoryImpl
 import com.sam.ayaana.domain.repository.UserRepositoryImpl
 import dagger.Binds
@@ -59,6 +61,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindNotificationsRepository(impl: NotificationsRepositoryImpl): INotificationsRepository
+
+    @Binds
+    abstract fun bindReelsRepository(impl: ReelsRepositoryImpl): IReelsRepository
 }
 
 

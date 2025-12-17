@@ -17,12 +17,14 @@ import com.sam.ayaana.domain.model.FollowStatus
 // Add these imports for chat
 import com.sam.ayaana.data.local.entity.ChatEntity
 import com.sam.ayaana.data.local.entity.MessageEntity
+import com.sam.ayaana.data.local.entity.ReelEntity
 import com.sam.ayaana.data.remote.model.response.ChatResponse
 import com.sam.ayaana.data.remote.model.response.MessageResponse
 import com.sam.ayaana.domain.model.Chat
 import com.sam.ayaana.domain.model.Message
 import com.sam.ayaana.domain.model.MessageStatus
 import com.sam.ayaana.domain.model.MessageType
+import com.sam.ayaana.domain.model.Reel
 
 // Date parsing helper to replace deprecated Date(String) constructor
 private fun parseDate(timestamp: String): java.util.Date {
@@ -410,6 +412,50 @@ fun MessageResponse.toMessageEntity(): MessageEntity {
         mediaUrl = mediaUrl,
         isSentByMe = senderId == "currentUser",
         messageStatus = messageStatus
+    )
+}
+
+fun ReelEntity.toReel(): Reel {
+    return Reel(
+        id = this.id,
+        title = this.title,
+        description = this.description,
+        videoUrl = this.videoUrl,
+        thumbnailUrl = this.thumbnailUrl,
+        duration = this.duration,
+        likes = this.likes,
+        comments = this.comments,
+        shares = this.shares,
+        userId = this.userId,
+        username = this.username,
+        userProfileImage = this.userProfileImage,
+        tags = this.tags.split(",").map { it.trim() },
+        category = this.category,
+        timestamp = this.timestamp,
+        isLiked = this.isLiked,
+        isSaved = this.isSaved
+    )
+}
+
+fun Reel.toReelEntity(): ReelEntity {
+    return ReelEntity(
+        id = this.id,
+        title = this.title,
+        description = this.description,
+        videoUrl = this.videoUrl,
+        thumbnailUrl = this.thumbnailUrl,
+        duration = this.duration,
+        likes = this.likes,
+        comments = this.comments,
+        shares = this.shares,
+        userId = this.userId,
+        username = this.username,
+        userProfileImage = this.userProfileImage,
+        tags = this.tags.joinToString(","),
+        category = this.category,
+        timestamp = this.timestamp,
+        isLiked = this.isLiked,
+        isSaved = this.isSaved
     )
 }
 //package com.sam.ayaana.Utils

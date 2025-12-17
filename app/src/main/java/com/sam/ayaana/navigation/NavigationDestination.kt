@@ -191,4 +191,18 @@ sealed interface NavigationDestination {
         override val route: String
             get() = "notifications_settings"
     }
+
+    data object ReelDetail : NavigationDestination {
+        override val title: String
+            get() = "Reel Detail"
+        override val route: String
+            get() = "reel_detail"
+
+        const val reelIdArg = "reelId"
+        val routeWithArgs: String
+            get() = "$route/{$reelIdArg}"
+
+        // Helper function to create navigation route
+        fun createRoute(reelId: String): String = "$route/$reelId"
+    }
 }

@@ -33,6 +33,7 @@ import com.sam.ayaana.presentation.screens.notifications.NotificationsScreen
 import com.sam.ayaana.presentation.screens.notifications.NotificationsSettingsScreen
 import com.sam.ayaana.presentation.screens.privacy.PrivacyScreen
 import com.sam.ayaana.presentation.screens.profile.ProfileScreen
+import com.sam.ayaana.presentation.screens.reels.ReelDetailScreen
 import com.sam.ayaana.presentation.screens.reels.ReelsScreen
 import com.sam.ayaana.presentation.screens.search.SearchScreen
 import com.sam.ayaana.presentation.screens.theme.ThemeScreen
@@ -335,5 +336,21 @@ fun AppNavigation(
             NotificationsSettingsScreen(navController = navController)
         }
 
+        composable(
+            route = NavigationDestination.ReelDetail.routeWithArgs,
+            arguments = listOf(
+                navArgument(NavigationDestination.ReelDetail.reelIdArg) {
+                    type = NavType.StringType
+                }
+            ),
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) { backStackEntry ->
+            // val reelId = backStackEntry.arguments?.getString(NavigationDestination.ReelDetail.reelIdArg) ?: ""
+            ReelDetailScreen(
+                navController = navController,
+                viewModel = hiltViewModel(backStackEntry)
+            )
+        }
     }
 }

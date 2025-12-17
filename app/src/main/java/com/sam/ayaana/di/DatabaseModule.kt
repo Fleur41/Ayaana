@@ -17,9 +17,12 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AyaanaDatabase{
-        return  Room.databaseBuilder(
-            context, AyaanaDatabase::class.java, AyaanaDatabase.DATABASE_NAME
-        ).build()
+        return Room.databaseBuilder(
+            context,
+            AyaanaDatabase::class.java, AyaanaDatabase.DATABASE_NAME
+        )
+            .fallbackToDestructiveMigration(false)
+            .build()
     }
 
     @Provides
@@ -38,5 +41,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideChatDao(database: AyaanaDatabase) = database.chatDao()
+
+    @Provides
+    @Singleton
+    fun provideReelDao(database: AyaanaDatabase) = database.reelDao()
 
 }

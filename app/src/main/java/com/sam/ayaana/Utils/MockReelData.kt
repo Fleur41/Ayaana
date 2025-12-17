@@ -1,0 +1,147 @@
+package com.sam.ayaana.Utils
+
+import com.sam.ayaana.domain.model.Reel
+
+object MockReelData {
+
+    fun generateMockReels(): List<Reel> {
+        return listOf(
+            Reel(
+                id = "1",
+                title = "Morning Drive",
+                description = "Beautiful sunrise drive through the mountains with amazing views",
+                videoUrl = "https://example.com/video1.mp4",
+                thumbnailUrl = "https://picsum.photos/id/100/400/700",
+                duration = 45,
+                likes = 12500,
+                comments = 342,
+                shares = 189,
+                userId = "user1",
+                username = "travel_dude",
+                userProfileImage = "https://picsum.photos/id/101/100/100",
+                tags = listOf("car", "drive", "morning", "mountains", "sunrise", "travel", "road", "adventure"),
+                category = "travel",
+                timestamp = System.currentTimeMillis() - 1000000
+            ),
+            Reel(
+                id = "2",
+                title = "Heavy Truck Delivery",
+                description = "Massive lorry carrying heavy construction materials to the site",
+                videoUrl = "https://example.com/video2.mp4",
+                thumbnailUrl = "https://picsum.photos/id/102/400/700",
+                duration = 30,
+                likes = 8900,
+                comments = 123,
+                shares = 45,
+                userId = "user2",
+                username = "truck_lover",
+                userProfileImage = "https://picsum.photos/id/103/100/100",
+                tags = listOf("lorry", "truck", "heavy", "construction", "vehicle", "delivery", "cargo"),
+                category = "vehicle",
+                timestamp = System.currentTimeMillis() - 2000000
+            ),
+            Reel(
+                id = "3",
+                title = "Sports Car Race",
+                description = "Luxury sports car racing on professional racetrack - amazing speed!",
+                videoUrl = "https://example.com/video3.mp4",
+                thumbnailUrl = "https://picsum.photos/id/104/400/700",
+                duration = 60,
+                likes = 25600,
+                comments = 789,
+                shares = 321,
+                userId = "user3",
+                username = "car_enthusiast",
+                userProfileImage = "https://picsum.photos/id/105/100/100",
+                tags = listOf("car", "sports", "luxury", "race", "speed", "vehicle", "fast", "exotic"),
+                category = "vehicle",
+                timestamp = System.currentTimeMillis() - 1500000
+            ),
+            Reel(
+                id = "4",
+                title = "City Lights Night View",
+                description = "Amazing and beautiful night view of the city with sparkling lights",
+                videoUrl = "https://example.com/video4.mp4",
+                thumbnailUrl = "https://picsum.photos/id/106/400/700",
+                duration = 40,
+                likes = 15400,
+                comments = 456,
+                shares = 234,
+                userId = "user4",
+                username = "city_explorer",
+                userProfileImage = "https://picsum.photos/id/107/100/100",
+                tags = listOf("city", "night", "lights", "urban", "amazing", "beautiful", "skyline"),
+                category = "travel",
+                timestamp = System.currentTimeMillis() - 800000
+            ),
+            Reel(
+                id = "5",
+                title = "Italian Pasta Cooking",
+                description = "Delicious homemade pasta recipe tutorial - so tasty and easy!",
+                videoUrl = "https://example.com/video5.mp4",
+                thumbnailUrl = "https://picsum.photos/id/108/400/700",
+                duration = 90,
+                likes = 34200,
+                comments = 891,
+                shares = 567,
+                userId = "user5",
+                username = "chef_life",
+                userProfileImage = "https://picsum.photos/id/109/100/100",
+                tags = listOf("food", "cooking", "pasta", "recipe", "delicious", "italian", "meal", "tasty"),
+                category = "food",
+                timestamp = System.currentTimeMillis() - 500000
+            ),
+            Reel(
+                id = "6",
+                title = "Fashion Week Runway",
+                description = "Latest fashion trends on the runway - stunning designs!",
+                videoUrl = "https://example.com/video6.mp4",
+                thumbnailUrl = "https://picsum.photos/id/110/400/700",
+                duration = 50,
+                likes = 18900,
+                comments = 345,
+                shares = 123,
+                userId = "user6",
+                username = "fashionista",
+                userProfileImage = "https://picsum.photos/id/111/100/100",
+                tags = listOf("fashion", "style", "runway", "clothing", "trendy", "design", "model"),
+                category = "fashion",
+                timestamp = System.currentTimeMillis() - 300000
+            ),
+            Reel(
+                id = "7",
+                title = "Funny Dog Compilation",
+                description = "Hilarious and funny dog moments that will make you laugh!",
+                videoUrl = "https://example.com/video7.mp4",
+                thumbnailUrl = "https://picsum.photos/id/112/400/700",
+                duration = 75,
+                likes = 56700,
+                comments = 1200,
+                shares = 890,
+                userId = "user7",
+                username = "pet_lover",
+                userProfileImage = "https://picsum.photos/id/113/100/100",
+                tags = listOf("funny", "dog", "pet", "comedy", "animal", "laugh", "hilarious"),
+                category = "comedy",
+                timestamp = System.currentTimeMillis() - 400000
+            ),
+            Reel(
+                id = "8",
+                title = "Mountain Hiking Adventure",
+                description = "Exciting hiking trip with breathtaking mountain views",
+                videoUrl = "https://example.com/video8.mp4",
+                thumbnailUrl = "https://picsum.photos/id/114/400/700",
+                duration = 55,
+                likes = 23400,
+                comments = 567,
+                shares = 345,
+                userId = "user8",
+                username = "adventure_seeker",
+                userProfileImage = "https://picsum.photos/id/115/100/100",
+                tags = listOf("hiking", "mountain", "adventure", "nature", "outdoor", "exciting", "explore"),
+                category = "travel",
+                timestamp = System.currentTimeMillis() - 600000
+            )
+        )
+    }
+}
