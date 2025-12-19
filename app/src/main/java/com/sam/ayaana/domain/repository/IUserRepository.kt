@@ -55,7 +55,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    // ✅ ADDED: Implementation
+    // : Implementation
     override suspend fun updateCurrentUserProfileImage(path: String?) {
         if (path != null) {
             datastoreRepository.saveProfileImagePath(path)

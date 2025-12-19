@@ -13,8 +13,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
+import androidx.core.content.edit
 
 @AndroidEntryPoint
 class FirebaseNotificationService : FirebaseMessagingService() {
@@ -29,18 +29,16 @@ class FirebaseNotificationService : FirebaseMessagingService() {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             // Create notification channel for Android O and above
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply {
-                    description = "Ayaana app notifications"
-                    enableVibration(true)
-                    vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
-                }
-                notificationManager.createNotificationChannel(channel)
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Ayaana app notifications"
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
             }
+            notificationManager.createNotificationChannel(channel)
 
             // Build notification
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -55,7 +53,7 @@ class FirebaseNotificationService : FirebaseMessagingService() {
             // Show notification
             notificationManager.notify(NOTIFICATION_ID + 1, notification)
 
-            Timber.d("Test notification sent: $title - $message")
+            Log.d("TAG","Test notification sent: $title - $message")
         }
     }
 
@@ -64,7 +62,7 @@ class FirebaseNotificationService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Timber.d("FCM Token: $token")
+        Log.d("TAG","FCM Token: $token")
 
         // Save token to SharedPreferences or send to your server
         CoroutineScope(Dispatchers.IO).launch {
@@ -76,7 +74,7 @@ class FirebaseNotificationService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        Timber.d("FCM Message received: ${remoteMessage.data}")
+        Log.d("TAG", "FCM Message received: ${remoteMessage.data}")
 
 
         // Handle data payload (when app is in foreground)
@@ -109,18 +107,16 @@ class FirebaseNotificationService : FirebaseMessagingService() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Create notification channel for Android O and above
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Ayaana app notifications"
-                enableVibration(true)
-                vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
-            }
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Ayaana app notifications"
+            enableVibration(true)
+            vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
         }
+        notificationManager.createNotificationChannel(channel)
 
         // Build notification
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -135,16 +131,15 @@ class FirebaseNotificationService : FirebaseMessagingService() {
         // Show notification
         notificationManager.notify(NOTIFICATION_ID, notification)
 
-        Timber.d("FCM notification shown: $title - $message")
+        Log.d("TAG","FCM notification shown: $title - $message")
     }
 
     private fun saveTokenToPreferences(token: String) {
         val sharedPref = getSharedPreferences("ayaana_prefs", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
+        sharedPref.edit {
             putString("fcm_token", token)
-            apply()
         }
-        Timber.d("FCM Token saved to preferences: $token")
+        Log.d("TAG","FCM Token saved to preferences: $token")
     }
 }
 

@@ -110,7 +110,7 @@ dependencies {
     implementation (libs.accompanist.permissions)
 
     // Timber
-    implementation(libs.timber)
+//    implementation(libs.timber)
 
     // Camera and permissions
     implementation(libs.androidx.camera.camera2)

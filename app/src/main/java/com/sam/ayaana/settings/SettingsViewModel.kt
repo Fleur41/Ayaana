@@ -21,7 +21,7 @@ class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val datastoreRepository: DatastoreRepository
 ) : ViewModel() {
-    private val _startDestination = MutableStateFlow<NavigationDestination>(NavigationDestination.Splash)
+    private val _startDestination = MutableStateFlow<NavigationDestination>(NavigationDestination.Home) //Splash was there before
     val startDestination: StateFlow<NavigationDestination> get() = _startDestination
 
     init {

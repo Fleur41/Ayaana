@@ -64,8 +64,8 @@ fun ForgotPasswordScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = LightGray,
-                    titleContentColor = Green500,
-                    navigationIconContentColor = Green500
+                    titleContentColor = Color.Black,
+                    navigationIconContentColor = Color.Black //Green500
                 )
             )
         }

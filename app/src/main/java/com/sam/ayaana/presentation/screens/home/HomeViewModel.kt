@@ -7,7 +7,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.sam.ayaana.data.paging.ExplorePostPagingSource
 import com.sam.ayaana.data.paging.FeedPostPagingSource
 import com.sam.ayaana.domain.model.Post
 import com.sam.ayaana.domain.repository.IPostRepository
@@ -16,7 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import com.sam.ayaana.Utils.Result
+import com.sam.ayaana.domain.model.StoryUiModel
+import com.sam.ayaana.domain.model.StoryViewState
 import com.sam.ayaana.domain.repository.IUserRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,9 +30,9 @@ class HomeViewModel @Inject constructor(
     private val userRepository: IUserRepository
 ) : ViewModel() {
 
+    private val _storyState = MutableStateFlow(StoryViewState())
+    val storyState: StateFlow<StoryViewState> = _storyState.asStateFlow()
     val profileImagePath: Flow<String?> = userRepository.currentUserProfileImage
-//    private val _currentTimeline = MutableStateFlow(TimelineType.HOME)
-//    val currentTimeline = _currentTimeline.asStateFlow()
 
     // Posts for home timeline (from users you follow) - using getFeedPosts()
     val homePosts: Flow<PagingData<Post>> = Pager(
@@ -39,29 +44,70 @@ class HomeViewModel @Inject constructor(
         FeedPostPagingSource(postRepository)
     }.flow.cachedIn(viewModelScope)
 
-    // Posts for explore timeline (public/trending content) - using getExplorePosts()
-//    val explorePosts: Flow<PagingData<Post>> = Pager(
-//        config = PagingConfig(
-//            pageSize = 10,
-//            enablePlaceholders = false
-//        )
-//    ) {
-//        ExplorePostPagingSource(postRepository)
-//    }.flow.cachedIn(viewModelScope)
 
-    // Get current posts based on selected timeline
-//    fun getCurrentPosts(): Flow<PagingData<Post>> {
-//        return when (_currentTimeline.value) {
-//            TimelineType.HOME -> homePosts
-//            TimelineType.EXPLORE -> explorePosts
-//        }
-//    }
+    private val usernames = listOf(
+        "natasha_mukami", "_wanjau_", "shawn_kip", "hadiya_rajesh", "dr_magnito",
+        "arjun_vyas", "sauro_bhat", "pauline_claude", "john_doe", "jane_smith",
+        "leonard_otie", "emily_davis", "joan_johnson", "olivia_wilson", "william_brown",
+        "sarah_jones", "michael_taylor", "lisa_anderson", "david_miller", "maria_garcia"
+    )
 
-    // Switch between home and explore timeline
-//    fun switchTimeline(timelineType: TimelineType) {
-//        _currentTimeline.value = timelineType
-//    }
+    init {
+        loadStories()
+    }
 
+    // Load stories with your existing picsum link
+    private fun loadStories() {
+        viewModelScope.launch {
+            val stories = usernames.mapIndexed { index, username ->
+                val storyId = index + 1
+                StoryUiModel(
+                    id = storyId,
+                    username = username,
+                    // Profile image (small version)
+                    profileImageUrl = "https://picsum.photos/id/${storyId}/200/300",
+                    // Story image (larger version for full view)
+                    storyImageUrl = "https://picsum.photos/id/${storyId + 100}/800/1400", // Different ID for larger image
+                    isViewed = false
+                )
+            }
+
+            _storyState.update { it.copy(stories = stories) }
+        }
+    }
+
+    // Handle story click
+    fun onStoryClick(storyId: Int) {
+        viewModelScope.launch {
+            val story = _storyState.value.stories.find { it.id == storyId }
+            story?.let {
+                // Mark as viewed
+                val updatedStories = _storyState.value.stories.map { storyItem ->
+                    if (storyItem.id == storyId) {
+                        storyItem.copy(isViewed = true)
+                    } else {
+                        storyItem
+                    }
+                }
+
+                _storyState.update { state ->
+                    state.copy(
+                        stories = updatedStories,
+                        selectedStory = it,
+                        isStoryViewerVisible = true
+                    )
+                }
+            }
+        }
+    }
+
+    // Close story viewer
+    fun closeStoryViewer() {
+        _storyState.update { it.copy(
+            isStoryViewerVisible = false,
+            selectedStory = null)
+        }
+    }
     fun toggleLike(postId: String, isCurrentlyLiked: Boolean) {
         viewModelScope.launch {
             val result = if (isCurrentlyLiked) {

@@ -52,6 +52,7 @@ import com.sam.ayaana.authentication.OrDivider
 import com.sam.ayaana.authentication.SocialLoginButton
 import com.sam.ayaana.authentication.signup.AuthState
 import com.sam.ayaana.authentication.signup.AuthViewModel
+import com.sam.ayaana.navigation.NavigationDestination
 import com.sam.ayaana.ui.theme.ButtonYellow
 import kotlinx.coroutines.launch
 
@@ -62,7 +63,8 @@ fun SignInScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
     onSignInSuccess: () -> Unit,
     onSignUpClick: () -> Unit,
-    onForgotPasswordClick: () -> Unit
+    onForgotPasswordClick: () -> Unit,
+
 
 ) {
     val authState by authViewModel.authState.collectAsState()
@@ -107,7 +109,11 @@ fun SignInScreen(
 //    }
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Sign In") })
+            TopAppBar(
+                title = {
+                    Text(text = "Sign In")
+                }
+            )
         }
     ) { innerPadding ->
         Column(

@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
@@ -28,13 +29,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.sam.ayaana.R
+import com.sam.ayaana.domain.model.StoryUiModel
 import com.sam.ayaana.navigation.NavigationDestination
 import com.sam.ayaana.presentation.component.homesection.PostsSection
 import kotlinx.coroutines.delay
@@ -76,6 +81,7 @@ fun HomeScreen(
                 InstagramStoryView(
                     navController = navController,
                     profileImagePath = profileImagePath,
+                    viewModel = viewModel,
                     onStoryClick = {},
                     onAddPhotoClick = {
                         navController?.navigate(NavigationDestination.CreatePost.route)
@@ -259,8 +265,10 @@ fun InstagramStoryView(
     navController: NavHostController? = null,
     profileImagePath: String? = null,
     onStoryClick: (Int) -> Unit = {},
-    onAddPhotoClick: () -> Unit = {}
+    onAddPhotoClick: () -> Unit = {},
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val storyState by viewModel.storyState.collectAsStateWithLifecycle()
     var stories by remember { mutableStateOf<List<Int>>(emptyList()) }
     var currentPage by remember { mutableIntStateOf(1) }
     var isLoading by remember { mutableStateOf(false) }
@@ -306,41 +314,54 @@ fun InstagramStoryView(
             UserStoryItem(
                 itemId = 0,
                 username = "Your Story",
-                profileImagePath = profileImagePath, // ✅ PASS SHARED IMAGE
+                profileImagePath = profileImagePath,
                 onItemClick = { Log.d("TAG", "UserStoryItem clicked") },
                 onAddPhotoClick = onAddPhotoClick
             )
         }
 
         items(
-            items = stories,
-            key = { itemId -> itemId }
-        ) { itemId ->
-            val username = when (itemId) {
-                1 -> "natasha_mukami"
-                2 -> "_wanjau_"
-                3 -> "shawn_kip"
-                4 -> "hadiya_rajesh"
-                5 -> "dr_magnito"
-                6 -> "arjun_vyas"
-                7 -> "sauro_bhat"
-                8 -> "pauline_claude"
-                9 -> "john_doe"
-                10 -> "jane_smith"
-                11 -> "Leonard_Otie"
-                12 -> "emily_davis"
-                13 -> "joan_johnson"
-                14 -> "olivia_wilson"
-                15 -> "william_brown"
-                else -> "user_$itemId"
-            }
-
+            items = storyState.stories,
+            key = { story -> story.id  }
+        ){ story ->
             StoryItem(
-                itemId = itemId,
-                username = username,
-                onItemClick = { onStoryClick(itemId) }
+                itemId = story.id,
+                username = story.username,
+                story = story,
+                onItemClick = {viewModel.onStoryClick(story.id)}
             )
+
         }
+
+//        items(
+//            items = stories,
+//            key = { itemId -> itemId }
+//        ) { itemId ->
+//            val username = when (itemId) {
+//                1 -> "natasha_mukami"
+//                2 -> "_wanjau_"
+//                3 -> "shawn_kip"
+//                4 -> "hadiya_rajesh"
+//                5 -> "dr_magnito"
+//                6 -> "arjun_vyas"
+//                7 -> "sauro_bhat"
+//                8 -> "pauline_claude"
+//                9 -> "john_doe"
+//                10 -> "jane_smith"
+//                11 -> "Leonard_Otie"
+//                12 -> "emily_davis"
+//                13 -> "joan_johnson"
+//                14 -> "olivia_wilson"
+//                15 -> "william_brown"
+//                else -> "user_$itemId"
+//            }
+//
+//            StoryItem(
+//                itemId = itemId,
+//                username = username,
+//                onItemClick = { onStoryClick(itemId) }
+//            )
+//        }
 
         if (isLoading) {
             item {
@@ -358,6 +379,13 @@ fun InstagramStoryView(
             }
         }
     }
+    if (storyState.isStoryViewerVisible){
+        StoryViewerDialog(
+            story = storyState.selectedStory,
+            onDismiss = {viewModel.closeStoryViewer()}
+        )
+
+    }
 }
 
 @Composable
@@ -365,12 +393,20 @@ fun StoryItem(
     modifier: Modifier = Modifier,
     itemId: Int,
     username: String,
+    story: StoryUiModel,
     onItemClick: () -> Unit
 ) {
-    val gradientColors = listOf(
-        Color(0xFF833AB4), Color(0xFFC13584), Color(0xFFE1306C), Color(0xFFFD1D1D),
-        Color(0xFFF56040), Color(0xFFF77737), Color(0xFFFCAF45), Color(0xFFFFDC80)
-    )
+    val gradientColors = if (story.isViewed) {
+        listOf(
+            Color(0xFF808080), Color(0xFFA0A0A0), Color(0xFFC0C0C0),
+            Color(0xFF90EE90), Color(0xFF87CEEB), Color(0xFFB0E0E6)
+        )
+    } else {
+        listOf(
+            Color(0xFF833AB4), Color(0xFFC13584), Color(0xFFE1306C), Color(0xFFFD1D1D),
+            Color(0xFFF56040), Color(0xFFF77737), Color(0xFFFCAF45), Color(0xFFFFDC80)
+        )
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -396,7 +432,8 @@ fun StoryItem(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape),
-                model = "https://picsum.photos/id/${itemId}/200/300",
+                model = story.profileImageUrl,
+                // model = "https://picsum.photos/id/${itemId}/200/300",
                 contentDescription = "Story",
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(R.drawable.placeholder),
@@ -516,12 +553,85 @@ fun UserStoryItem(
     }
 }
 
+@Composable
+fun StoryViewerDialog(
+    story: StoryUiModel?,
+    onDismiss: () -> Unit
+) {
+    if (story == null) return
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            // Story Image (full screen)
+            AsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = story.storyImageUrl,
+                contentDescription = "Story",
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.placeholder),
+                fallback = painterResource(R.drawable.placeholder)
+            )
+
+            // Close button
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Close",
+                tint = Color.White,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(24.dp)
+                    .size(32.dp)
+                    .clickable { onDismiss() }
+            )
+
+            // Username at top left
+            androidx.compose.material3.Text(
+                text = story.username,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(24.dp)
+            )
+
+            // Tap anywhere to close hint
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .align(Alignment.BottomCenter)
+                    .clickable { onDismiss() },
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Text(
+                    text = "Tap anywhere to close",
+                    color = Color.White.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
 @Preview
 @Composable
 private fun StoryItemPreview() {
     StoryItem(
         itemId = 1,
         username = "Sammir Nasri",
+        story = StoryUiModel(
+            id = 1,
+            username = "Sammir Nasri",
+            profileImageUrl = "https://picsum.photos/id/1/200/300",
+            storyImageUrl = "https://picsum.photos/id/101/800/1400",
+            isViewed = false
+        ),
         onItemClick = {}
     )
 }

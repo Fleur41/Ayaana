@@ -17,7 +17,6 @@ interface AuthRepository {
         onSignInSuccess: () -> Unit,
         onSignInFailure: (Exception) -> Unit
     )
-
     fun signOut()
 }
 
@@ -41,8 +40,6 @@ class AuthRepositoryImpl @Inject constructor(
                 onSignUpFailure(exception)
             }
     }
-
-
 
     override fun signIn(
         email: String,
