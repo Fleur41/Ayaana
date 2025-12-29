@@ -1,7 +1,8 @@
 package com.sam.ayaana.authentication
 
-import android.R.attr.password
+
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sam.ayaana.authentication.signin.CustomTextField
 import com.sam.ayaana.components.VerticalSpacer
+import com.sam.ayaana.R
 
 @Composable
 fun CompanyInfo(modifier: Modifier = Modifier) {
@@ -37,10 +38,15 @@ fun CompanyInfo(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ){
-        Text(
-            text = "Ayaana",
-            style = MaterialTheme.typography.headlineLarge
+        Image(
+            painter = painterResource(id = R.drawable.ic_ay_logo),
+            contentDescription = "Logo",
+            modifier = Modifier.size(100.dp)
         )
+//        Text(
+//            text = "Ayaana",
+//            style = MaterialTheme.typography.headlineLarge
+//        )
     }
 }
 @Composable

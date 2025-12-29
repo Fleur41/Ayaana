@@ -108,7 +108,9 @@ fun MenuScreen(
         MenuItem(
             icon = Icons.Default.BookmarkBorder,
             title = "Saved",
-            onClick = { /* Navigate to saved items */ }
+            onClick = {
+                navController.navigate( NavigationDestination.Home.route )
+            }
         )
 
         // 3. Notifications
@@ -124,7 +126,9 @@ fun MenuScreen(
         MenuItem(
             icon = Icons.AutoMirrored.Filled.Comment,
             title = "Comments",
-            onClick = { /* Navigate to comments */ }
+            onClick = {
+                navController.navigate(NavigationDestination.Home.route)
+            }
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))

@@ -130,7 +130,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Repost/Unrepost toggle -
+    // Repost/Unrest toggle -
     fun toggleRepost(postId: String, isCurrentlyReposted: Boolean) {
         viewModelScope.launch {
             val result = if (isCurrentlyReposted) {
@@ -218,6 +218,3 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-//enum class TimelineType{
-//    HOME, EXPLORE
-//}

@@ -26,7 +26,9 @@ import com.sam.ayaana.domain.model.Post
 import com.sam.ayaana.R
 
 @Composable
+
 fun PostItem(
+    modifier: Modifier = Modifier,
     post: Post,
     onProfileClick: (String) -> Unit,
     onLikeClick: (String, Boolean) -> Unit,
@@ -35,7 +37,7 @@ fun PostItem(
     onRepostClick: (String, Boolean) -> Unit,
     onMoreOptionsClick: (String) -> Unit,
     onSaveClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    isCommentsExpanded: Boolean = false,
 ) {
     Column(modifier = modifier) {
         // Post Header

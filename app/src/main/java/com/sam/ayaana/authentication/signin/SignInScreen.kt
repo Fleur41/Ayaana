@@ -143,7 +143,6 @@ fun SignInScreen(
                     onPasswordClear = { password = "" },
                     isEmailError = isEmailError,
                     isPasswordError = isPasswordError,
-//                enableActionButton = true, //might bring some issue
                     actionButtonContent = {
                         if (authState is AuthState.Loading) {
                             CircularProgressIndicator(

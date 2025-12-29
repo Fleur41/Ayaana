@@ -35,7 +35,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -44,6 +46,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +67,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.sam.ayaana.R
@@ -98,28 +102,19 @@ fun ReelsScreen(
                     .background(Color.Black)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                // Search Bar
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = {
+                // CHANGED: Simple TextField with box styling
+                TextField(
+                    value = searchQuery,
+                    onValueChange = {
                         viewModel.searchReels(it)
                         showSearchSuggestions = it.isNotEmpty()
                     },
-                    onSearch = {
-                        isSearchActive = false
-                        showSearchSuggestions = false
-                        if (searchQuery.isNotEmpty()) {
-                            scope.launch {
-                                viewModel.addToSearchHistory(searchQuery)
-                            }
-                        }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    placeholder = {
+                        Text("Search reels...", color = Color.Gray)
                     },
-                    active = isSearchActive,
-                    onActiveChange = {
-                        isSearchActive = it
-                        showSearchSuggestions = it && searchQuery.isNotEmpty()
-                    },
-                    placeholder = { Text("Search reels...", color = Color.Gray) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -143,39 +138,18 @@ fun ReelsScreen(
                             }
                         }
                     },
-                    colors = SearchBarDefaults.colors(
-                        containerColor = Color(0xFF262626),
-                        inputFieldColors = TextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            cursorColor = Color.White,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        )
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFF262626),
+                        focusedContainerColor = Color(0xFF262626),
+                        unfocusedTextColor = Color.White,
+                        focusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent
                     ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Search suggestions when active
-                    if (showSearchSuggestions) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            SearchSuggestions(
-                                searchQuery = searchQuery,
-                                onSuggestionClick = { suggestion ->
-                                    viewModel.searchReels(suggestion)
-                                    scope.launch {
-                                        viewModel.addToSearchHistory(suggestion)
-                                    }
-                                    isSearchActive = false
-                                    showSearchSuggestions = false
-                                }
-                            )
-                        }
-                    }
-                }
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
             }
         },
         bottomBar = {
@@ -336,7 +310,7 @@ private fun SearchSuggestions(
         "By A Nationwide Internet Owner",
         "Love Is Peaceful",
         "SHAKE!",
-        "Miguna Blasts Matlang'i",
+        "Miguna Blasts Matiangi",
         "What killed former",
         "Car videos",
         "Funny moments",
@@ -501,12 +475,12 @@ private fun CategoryChip(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReelsGrid(
+    modifier: Modifier = Modifier,
     reels: List<Reel>,
     onReelClick: (Reel) -> Unit,
     onLikeClick: (Reel) -> Unit,
     isLoading: Boolean,
     selectedCategory: String? = null,
-    modifier: Modifier = Modifier
 ) {
     if (isLoading) {
         Box(
@@ -777,162 +751,3 @@ fun formatCount(count: Int): String {
 private fun ReelsScreenPreview() {
     ReelsScreen()
 }
-//package com.sam.ayaana.presentation.screens.reels
-//
-//import androidx.compose.foundation.background
-//import androidx.compose.foundation.layout.Box
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.layout.fillMaxWidth
-//import androidx.compose.foundation.layout.padding
-//import androidx.compose.material3.ExperimentalMaterial3Api
-//import androidx.compose.material3.Icon
-//import androidx.compose.material3.NavigationBar
-//import androidx.compose.material3.NavigationBarItem
-//import androidx.compose.material3.Scaffold
-//import androidx.compose.material3.Text
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.collectAsState
-//import androidx.compose.runtime.getValue
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.res.painterResource
-//import androidx.compose.ui.text.font.FontWeight
-//import androidx.compose.ui.tooling.preview.Preview
-//import androidx.compose.ui.unit.dp
-//import androidx.compose.ui.unit.sp
-//import androidx.navigation.NavHostController
-//import androidx.navigation.compose.currentBackStackEntryAsState
-//import com.sam.ayaana.R
-//
-//
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun ReelsScreen(
-//    navController: NavHostController? = null
-//) {
-//    val currentRoute = if (navController != null) {
-//        val navBackStackEntry by navController.currentBackStackEntryAsState()
-//        navBackStackEntry?.destination?.route
-//    } else {
-//        "reels"
-//    }
-//
-//    Scaffold(
-//        topBar = {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(Color.Black)
-//                    .padding(16.dp)
-//            ) {
-//                Text(
-//                    text = "Reels",
-//                    color = Color.White,
-//                    fontSize = 20.sp,
-//                    fontWeight = FontWeight.Bold
-//                )
-//            }
-//        },
-//        bottomBar = {
-//            NavigationBar(
-//                containerColor = Color.Black,
-//                contentColor = Color.White
-//            ) {
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "home") R.drawable.ic_home_filled else R.drawable.ic_home_outlined),
-//                            contentDescription = "Home",
-//                            tint = if (currentRoute == "home") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "home",
-//                    onClick = { navController?.navigate("home") }
-//                )
-//
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "reels") R.drawable.ic_reels_filled else R.drawable.ic_reels_outlined),
-//                            contentDescription = "Reels",
-//                            tint = if (currentRoute == "reels") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "reels",
-//                    onClick = { navController?.navigate("reels") }
-//                )
-//
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "chat") R.drawable.ic_chat_filled else R.drawable.ic_chat_outlined),
-//                            contentDescription = "Chat",
-//                            tint = if (currentRoute == "chat") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "chat",
-//                    onClick = { navController?.navigate("chat") }
-//                )
-//
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "search") R.drawable.ic_search_filled else R.drawable.ic_search_outlined),
-//                            contentDescription = "Search",
-//                            tint = if (currentRoute == "search") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "search",
-//                    onClick = { navController?.navigate("search") }
-//                )
-//
-//                NavigationBarItem(
-//                    icon = {
-//                        Icon(
-//                            painter = painterResource(id = if (currentRoute == "profile") R.drawable.ic_profile_filled else R.drawable.ic_profile_outlined),
-//                            contentDescription = "Profile",
-//                            tint = if (currentRoute == "profile") Color.White else Color.Gray
-//                        )
-//                    },
-//                    label = { Text(text = "", fontSize = 0.sp) },
-//                    selected = currentRoute == "profile",
-//                    onClick = { navController?.navigate("profile") }
-//                )
-//            }
-//        }
-//    ) { innerPadding ->
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//                .background(Color.White),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .weight(1f),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = "Reels Content Will Be Here",
-//                    color = Color.Magenta,
-//                    fontSize = 18.sp
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//@Preview
-//@Composable
-//private fun ReelsScreenPreview() {
-//    ReelsScreen()
-//}

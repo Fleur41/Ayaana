@@ -1,8 +1,5 @@
 package com.sam.ayaana.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed interface NavigationDestination {
     val title: String

@@ -480,7 +480,7 @@ fun UserStoryItem(
                         indication = null
                     ) { onItemClick() }
             ) {
-                // ✅ USE SHARED PROFILE IMAGE PATH
+                // USE SHARED PROFILE IMAGE PATH
                 val imageModel = remember(profileImagePath) {
                     if (profileImagePath != null) {
                         File(profileImagePath).toUri()
