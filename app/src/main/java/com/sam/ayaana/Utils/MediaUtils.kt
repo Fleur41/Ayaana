@@ -2,6 +2,8 @@ package com.sam.ayaana.Utils
 
 import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import java.io.File
@@ -77,6 +79,26 @@ object MediaUtils {
             isImageUri(context.contentResolver, uri) -> MediaType.IMAGE
             isVideoUri(context.contentResolver, uri) -> MediaType.VIDEO
             else -> MediaType.UNKNOWN
+        }
+    }
+
+
+    fun getVideoThumbnail(context: Context, uri: Uri): Bitmap? {
+        return try {
+            val mediaMetadataRetriever = MediaMetadataRetriever()
+            mediaMetadataRetriever.setDataSource(context, uri)
+
+            // Get thumbnail at 1 second mark
+            val thumbnail = mediaMetadataRetriever.getFrameAtTime(
+                1000000, // 1 second in microseconds
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+            )
+
+            mediaMetadataRetriever.release()
+            thumbnail
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

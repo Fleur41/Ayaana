@@ -93,21 +93,39 @@ class CreatePostViewModel @Inject constructor(
                         }
                     }
                     CreateType.STORY -> {
-                        // Stories support both images and videos, but single file only
+                        // CHANGED: Stories now support multiple media files (carousel stories)
                         if (mediaFiles.size == 1) {
                             postRepository.createStory(mediaFiles.first())
+                        } else if (mediaFiles.size > 1) {
+                            postRepository.createStoryWithMultipleMedia(mediaFiles) // CHANGED: Need this method in repository
                         } else {
-                            com.sam.ayaana.Utils.Result.Error("Stories can only contain one media file")
+                            com.sam.ayaana.Utils.Result.Error("Please select media for story")
                         }
                     }
                     CreateType.REEL -> {
-                        // Reels are video-only, single file
-                        if (mediaFiles.size == 1 && MediaUtils.isVideoUri(context.contentResolver, mediaUris.first())) {
-                            postRepository.createReel(mediaFiles.first(), caption)
+                        // CHANGED: Better handling for multiple video clips
+                        if (mediaFiles.isNotEmpty()) {
+                            // Filter only video files for reels (though validation should have already done this)
+                            val videoFiles = mediaFiles.filterIndexed { index, file ->
+                                MediaUtils.isVideoUri(context.contentResolver, mediaUris[index])
+                            }
+
+                            if (videoFiles.isEmpty()) {
+                                com.sam.ayaana.Utils.Result.Error("Please select video files for reel")
+                            } else {
+                                // Use single video method for one clip, multiple clips method for >1
+                                if (videoFiles.size == 1) {
+                                    postRepository.createReel(videoFiles.first(), caption)
+                                } else {
+                                    postRepository.createReelWithMultipleClips(videoFiles, caption)
+                                }
+                            }
                         } else {
-                            com.sam.ayaana.Utils.Result.Error("Reels must be a single video file")
+                            com.sam.ayaana.Utils.Result.Error("Please select video clips for reel")
                         }
                     }
+//
+//
                     CreateType.LIVE -> {
                         // Live streaming implementation would go here
                         com.sam.ayaana.Utils.Result.Error("Live streaming not implemented yet")
@@ -119,7 +137,7 @@ class CreatePostViewModel @Inject constructor(
                 _uiState.value = CreatePostUiState.Loading(1.0f)
 
                 when (result) {
-                    is com.sam.ayaana.Utils.Result.Success -> {
+                    is com.sam.ayaana.Utils.Result.Success<*> -> {
                         // Clean up temporary files
                         mediaFiles.forEach { it.delete() }
 
@@ -153,29 +171,38 @@ class CreatePostViewModel @Inject constructor(
                 }
             }
             CreateType.STORY -> {
-                // Stories support single image or video
-                if (mediaUris.size != 1) {
-                    ValidationResult(false, "Stories can only contain one media file")
+                // CHANGED: Stories support multiple images/videos (Instagram allows multiple in carousel stories)
+                if (mediaUris.isEmpty()) {
+                    ValidationResult(false, "Please select at least one media file for story")
+                } else if (mediaUris.size > 10) {
+                    ValidationResult(false, "Maximum 10 media files allowed per story")
                 } else {
                     ValidationResult(true, "")
                 }
             }
             CreateType.REEL -> {
-                // Reels support single video only
-                if (mediaUris.size != 1) {
-                    ValidationResult(false, "Reels can only contain one video file")
-                } else if (!MediaUtils.isVideoUri(context.contentResolver, mediaUris.first())) {
-                    ValidationResult(false, "Reels must be a video file")
+                // CHANGED: Check if all selected files are videos
+                val allVideos = mediaUris.all { uri ->
+                    MediaUtils.isVideoUri(context.contentResolver, uri)
+                }
+
+                if (mediaUris.isEmpty()) {
+                    ValidationResult(false, "Please select at least one video file for reel")
+                } else if (!allVideos) {
+                    ValidationResult(false, "Reels can only contain video files")
+                } else if (mediaUris.size > 10) {
+                    ValidationResult(false, "Maximum 10 video clips allowed per reel")
                 } else {
                     ValidationResult(true, "")
                 }
             }
+//
             CreateType.LIVE -> {
                 ValidationResult(false, "Live streaming validation not implemented")
             }
         }
     }
-
+//
     fun clearSelection() {
         _selectedMedia.value = emptyList()
         _uiState.value = CreatePostUiState.Initial

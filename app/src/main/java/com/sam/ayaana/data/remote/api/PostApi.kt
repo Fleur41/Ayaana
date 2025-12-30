@@ -114,4 +114,17 @@ interface PostApi {
         @Part video: MultipartBody.Part,
         @Part("caption") caption: RequestBody
     ): ApiResponse<PostResponse>
+
+    @Multipart
+    @POST("stories/multiple")
+    suspend fun createStoryWithMultipleMedia(
+        @Part media: List<MultipartBody.Part>
+    ): ApiResponse<PostResponse>
+
+    @Multipart
+    @POST("reels/multiple")
+    suspend fun createReelWithMultipleClips(
+        @Part videos: List<MultipartBody.Part>,
+        @Part("caption") caption: RequestBody
+    ): ApiResponse<PostResponse>
 }

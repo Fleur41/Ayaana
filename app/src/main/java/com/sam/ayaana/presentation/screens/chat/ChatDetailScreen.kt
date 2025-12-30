@@ -33,16 +33,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.VideoCall
 import androidx.compose.material3.CircularProgressIndicator
@@ -73,7 +67,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.google.android.play.integrity.internal.ac
 import com.sam.ayaana.Utils.Result
 import com.sam.ayaana.domain.model.Message
 import com.sam.ayaana.Utils.EmojiData

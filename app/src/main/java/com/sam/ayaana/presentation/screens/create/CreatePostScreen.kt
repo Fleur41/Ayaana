@@ -1,8 +1,11 @@
 package com.sam.ayaana.presentation.screens.create
 
+import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
@@ -13,9 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -23,8 +30,10 @@ import com.sam.ayaana.Utils.GalleryLauncherResult
 import com.sam.ayaana.domain.model.CreateOption
 import com.sam.ayaana.Utils.CreateOptions
 import com.sam.ayaana.Utils.GalleryPicker
+import com.sam.ayaana.Utils.MediaUtils
 import com.sam.ayaana.domain.model.CreateType
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +55,8 @@ fun CreatePostScreen(
         onMediaSelected = { uris ->
             viewModel.selectMedia(uris)
         },
-        maxSelection = GalleryPicker.MAX_SELECTION_POST,
+        maxSelection = 20,
+        // maxSelection = GalleryPicker.MAX_SELECTION_POST,
         isVideoOnly = false
     )
 
@@ -54,7 +64,8 @@ fun CreatePostScreen(
         onMediaSelected = { uris ->
             viewModel.selectMedia(uris)
         },
-        maxSelection = GalleryPicker.MAX_SELECTION_STORY,
+        maxSelection = 20,
+        // maxSelection = GalleryPicker.MAX_SELECTION_STORY,
         isVideoOnly = false
     )
 
@@ -62,8 +73,9 @@ fun CreatePostScreen(
         onMediaSelected = { uris ->
             viewModel.selectMedia(uris)
         },
-        maxSelection = GalleryPicker.MAX_SELECTION_REEL,
-        isVideoOnly = true
+        maxSelection = 10,
+        // maxSelection = GalleryPicker.MAX_SELECTION_REEL,
+        isVideoOnly = false
     )
 
     Scaffold(
@@ -247,49 +259,197 @@ private fun startLiveStream() {
 
 @Composable
 fun SelectedMediaPreview(
-    mediaUris: List<android.net.Uri>,
-    onRemoveMedia: (android.net.Uri) -> Unit
+    mediaUris: List<Uri>,
+    onRemoveMedia: (Uri) -> Unit
 ) {
-    // Enhanced preview with actual media thumbnails
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(mediaUris) { uri ->
-            MediaThumbnail(uri = uri, onRemove = { onRemoveMedia(uri) })
+    val context = LocalContext.current
+
+    // CHANGED: Check if any of the media is video
+    val hasVideos = mediaUris.any { uri ->
+        MediaUtils.isVideoUri(context.contentResolver, uri)
+    }
+
+    if (mediaUris.isNotEmpty()) {
+        Column {
+            // CHANGED: Increased height from 120.dp to 200.dp for better video visibility
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp), // CHANGED: Increased to 200.dp
+                horizontalArrangement = Arrangement.spacedBy(12.dp) // CHANGED: Increased spacing
+            ) {
+                items(mediaUris) { uri ->
+                    MediaThumbnail(
+                        uri = uri,
+                        onRemove = { onRemoveMedia(uri) },
+                        size = 180.dp // CHANGED: Pass larger size
+                    )
+                }
+            }
+
+            // CHANGED: Add warning if videos are mixed with images
+            if (hasVideos && mediaUris.size > 1) {
+                val videoCount = mediaUris.count { uri ->
+                    MediaUtils.isVideoUri(context.contentResolver, uri)
+                }
+                val imageCount = mediaUris.size - videoCount
+
+                if (videoCount > 0 && imageCount > 0) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Warning",
+                            tint = Color(0xFFFF9800),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "$videoCount video${if (videoCount > 1) "s" else ""} and $imageCount image${if (imageCount > 1) "s" else ""} selected",
+                            color = Color(0xFFFF9800),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun MediaThumbnail(uri: android.net.Uri, onRemove: () -> Unit) {
+fun MediaThumbnail(
+    uri: Uri,
+    onRemove: () -> Unit,
+    size: Dp = 180.dp // CHANGED: Default size parameter
+) {
+    val context = LocalContext.current
+    val isVideo = remember(uri) {
+        MediaUtils.isVideoUri(context.contentResolver, uri)
+    }
+
     Box(
         modifier = Modifier
-            .size(100.dp)
+            .size(size) // CHANGED: Use parameter
     ) {
-        // Using Coil for image loading
-        AsyncImage(
-            model = uri,
-            contentDescription = "Selected media",
-            modifier = Modifier
-                .size(100.dp)
-                .clip(MaterialTheme.shapes.medium)
-        )
+        if (isVideo) {
+            VideoThumbnail(uri = uri)
+        } else {
+            // For images, use AsyncImage
+            AsyncImage(
+                model = uri,
+                contentDescription = "Selected media",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+        }
 
         // Remove button
         IconButton(
             onClick = onRemove,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .size(24.dp)
+                .size(28.dp)
+                .background(Color.Black.copy(alpha = 0.7f), CircleShape)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Remove",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.size(18.dp)
             )
+        }
+
+        // Video play icon overlay - CHANGED: Bigger and centered
+        if (isVideo) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.Black.copy(alpha = 0.7f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play video",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun VideoThumbnail(
+    uri: Uri,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var thumbnailBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uri) {
+        // Load video thumbnail in background
+        thumbnailBitmap = withContext(kotlinx.coroutines.Dispatchers.IO) {
+            MediaUtils.getVideoThumbnail(context, uri)
+        }
+        isLoading = false
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(MaterialTheme.shapes.medium)
+            .background(Color.LightGray), // Fallback background
+        contentAlignment = Alignment.Center
+    ) {
+        when {
+            isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp
+                )
+            }
+            thumbnailBitmap != null -> {
+                // Display the actual video thumbnail
+                androidx.compose.foundation.Image(
+                    bitmap = thumbnailBitmap!!.asImageBitmap(),
+                    contentDescription = "Video thumbnail",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            else -> {
+                // Fallback if thumbnail couldn't be loaded
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Videocam,
+                        contentDescription = "Video",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Text(
+                        text = "Video",
+                        color = Color.Gray,
+                        fontSize = 10.sp
+                    )
+                }
+            }
         }
     }
 }
