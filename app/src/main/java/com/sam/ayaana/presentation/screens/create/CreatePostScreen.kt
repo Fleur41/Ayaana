@@ -191,7 +191,7 @@ fun CreatePostScreen(
                                 "Post" -> openGalleryForPost(postGalleryLauncherResult)
                                 "Story" -> openGalleryForStory(storyGalleryLauncherResult)
                                 "Reel" -> openGalleryForReel(reelGalleryLauncherResult)
-                                "Live" -> startLiveStream()
+                                "Live" -> startLiveStream(navController)
                             }
                         }
                     )
@@ -252,9 +252,9 @@ private fun openGalleryForReel(galleryLauncherResult: GalleryLauncherResult) {
     galleryLauncherResult.launchGallery()
 }
 
-private fun startLiveStream() {
+private fun startLiveStream(navController: NavHostController?) {
     // Start live streaming - this would open camera or streaming service
-    // For now, we'll show a message or navigate to live stream screen
+    navController?.navigate("live_stream")
 }
 
 @Composable

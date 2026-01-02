@@ -4,6 +4,8 @@ agp = "8.13.2"
 cameraView = "1.5.1"
 coilCompose = "2.7.0"
 datastorePreferences = "1.1.7"
+exoplayer = "2.19.1"
+extensionRtmp = "2.19.1"
 firebaseBom = "33.16.0"
 hiltAndroid = "2.57"
 hiltNavigationCompose = "1.2.0"
@@ -26,6 +28,7 @@ retrofit = "2.9.0"
 okhttp = "4.12.0"
 roomPaging = "2.8.3"
 generativeai = "0.9.0"
+rtplibrary = "2.2.6"
 uiGraphics = "1.9.5"
 uiTest = "1.9.5"
 uiText = "1.10.0"
@@ -68,6 +71,8 @@ androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.r
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
 
 # Hilt
+exoplayer = { module = "com.google.android.exoplayer:exoplayer", version.ref = "exoplayer" }
+extension-rtmp = { module = "com.google.android.exoplayer:extension-rtmp", version.ref = "extensionRtmp" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 
@@ -104,6 +109,8 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-compose-ui-test = { group = "androidx.compose.ui", name = "ui-test", version.ref = "uiTest" }
 androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
+rtplibrary = { module = "com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary", version.ref = "rtplibrary" }
+
 
 
 [plugins]

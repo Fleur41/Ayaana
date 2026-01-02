@@ -1,4 +1,3 @@
-// presentation/screens/notifications/NotificationsScreen.kt
 package com.sam.ayaana.presentation.screens.notifications
 
 import androidx.compose.foundation.background
@@ -29,6 +28,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -137,6 +137,97 @@ fun NotificationsScreen(
 }
 
 
+//@Composable
+//fun NotificationsList(
+//    notifications: List<Notification>,
+//    onFollowRequestClick: () -> Unit,
+//    onNotificationClick: (Notification) -> Unit
+//) {
+//    LazyColumn(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        // New section
+//        val newNotifications = notifications.filter {
+//            !it.isRead && it.timeGroup == Notification.TimeGroup.TODAY
+//        }
+//        if (newNotifications.isNotEmpty()) {
+//            item {
+//                Text(
+//                    text = "New",
+//                    modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 8.dp),
+//                    fontWeight = FontWeight.Bold,
+//                    fontSize = 14.sp,
+//                    color = Color.Black
+//                )
+//            }
+//            items(newNotifications) { notification ->
+//                NotificationItem(
+//                    notification = notification,
+//                    onClick = {
+//                        when (notification.type) {
+//                            Notification.NotificationType.FOLLOW_REQUEST -> onFollowRequestClick()
+//                            else -> onNotificationClick(notification)
+//                        }
+//                    }
+//                )
+//            }
+//        }
+//
+//        // Today section
+//        val todayNotifications = notifications.filter {
+//            it.timeGroup == Notification.TimeGroup.TODAY && it.isRead
+//        }
+//        if (todayNotifications.isNotEmpty()) {
+//            item {
+//                Text(
+//                    text = "Today",
+//                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
+//                    fontWeight = FontWeight.Bold,
+//                    fontSize = 14.sp,
+//                    color = Color.Gray
+//                )
+//            }
+//            items(todayNotifications) { notification ->
+//                NotificationItem(
+//                    notification = notification,
+//                    onClick = {
+//                        when (notification.type) {
+//                            Notification.NotificationType.FOLLOW_REQUEST -> onFollowRequestClick()
+//                            else -> onNotificationClick(notification)
+//                        }
+//                    }
+//                )
+//            }
+//        }
+//
+//        // This week section
+//        val thisWeekNotifications = notifications.filter {
+//            it.timeGroup == Notification.TimeGroup.LAST_7_DAYS
+//        }
+//        if (thisWeekNotifications.isNotEmpty()) {
+//            item {
+//                Text(
+//                    text = "This week",
+//                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
+//                    fontWeight = FontWeight.Bold,
+//                    fontSize = 14.sp,
+//                    color = Color.Gray
+//                )
+//            }
+//            items(thisWeekNotifications) { notification ->
+//                NotificationItem(
+//                    notification = notification,
+//                    onClick = {
+//                        when (notification.type) {
+//                            Notification.NotificationType.FOLLOW_REQUEST -> onFollowRequestClick()
+//                            else -> onNotificationClick(notification)
+//                        }
+//                    }
+//                )
+//            }
+//        }
+//    }
+//}
 @Composable
 fun NotificationsList(
     notifications: List<Notification>,
@@ -166,6 +257,13 @@ fun NotificationsList(
                     onClick = {
                         when (notification.type) {
                             Notification.NotificationType.FOLLOW_REQUEST -> onFollowRequestClick()
+                            Notification.NotificationType.LIVE_STREAM -> {
+                                // Extract streamId from notification data
+                                // This depends on how you structure your notification data
+                                val streamId = notification.targetUserId ?: "live_1"
+                                // Navigate to LiveViewerScreen
+                                onNotificationClick(notification)
+                            }
                             else -> onNotificationClick(notification)
                         }
                     }
@@ -173,6 +271,7 @@ fun NotificationsList(
             }
         }
 
+        // ... rest of your code remains the same
         // Today section
         val todayNotifications = notifications.filter {
             it.timeGroup == Notification.TimeGroup.TODAY && it.isRead
@@ -229,165 +328,6 @@ fun NotificationsList(
     }
 }
 
-
-// presentation/screens/notifications/NotificationsScreen.kt
-//@Composable
-//fun NotificationItem(
-//    notification: Notification,
-//    onClick: () -> Unit
-//) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable(onClick = onClick)
-//            .padding(horizontal = 8.dp, vertical = 4.dp),
-//        colors = CardDefaults.cardColors(
-//            containerColor = Color.White
-//        ),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(horizontal = 16.dp, vertical = 12.dp),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            // Profile image - ALWAYS on far left (Instagram style)
-//            AsyncImage(
-//                model = notification.userProfileImage ?: "https://picsum.photos/id/237/200/200",
-//                contentDescription = "Profile",
-//                modifier = Modifier
-//                    .size(44.dp)
-//                    .clip(CircleShape)
-//            )
-//
-//            Spacer(modifier = Modifier.width(12.dp))
-//
-//            // Notification content - Middle section
-//            Column(
-//                modifier = Modifier.weight(1f)
-//            ) {
-//                // Username with bold styling
-//                Text(
-//                    text = notification.title,
-//                    fontSize = 14.sp,
-//                    fontWeight = FontWeight.Bold,
-//                    color = Color.Black,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis
-//                )
-//
-//                // Message
-//                Text(
-//                    text = notification.message,
-//                    color = Color.Gray,
-//                    fontSize = 13.sp,
-//                    modifier = Modifier.padding(top = 2.dp),
-//                    maxLines = 2,
-//                    overflow = TextOverflow.Ellipsis
-//                )
-//
-//                // Time
-//                Text(
-//                    text = formatTimeAgo(notification.timestamp),
-//                    color = Color.LightGray,
-//                    fontSize = 11.sp,
-//                    modifier = Modifier.padding(top = 4.dp)
-//                )
-//            }
-//
-//            Spacer(modifier = Modifier.width(8.dp))
-//
-//            // Right side content - FAR RIGHT (Instagram style)
-//            when (notification.type) {
-//                // FOLLOW REQUEST: Blue Follow button on right side
-//                Notification.NotificationType.FOLLOW_REQUEST -> {
-//                    Button(
-//                        onClick = { /* Follow action - accept follow request */ },
-//                        colors = ButtonDefaults.buttonColors(
-//                            containerColor = Color(0xFF0095F6)
-//                        ),
-//                        modifier = Modifier
-//                            .height(28.dp)
-//                            .width(70.dp),
-//                        shape = RoundedCornerShape(4.dp)
-//                    ) {
-//                        Text(
-//                            text = "Follow",
-//                            fontSize = 12.sp,
-//                            fontWeight = FontWeight.Bold
-//                        )
-//                    }
-//                }
-//
-//                // SUGGESTED FRIEND: Blue Follow button on right side
-//                Notification.NotificationType.SUGGESTED_FRIEND -> {
-//                    Button(
-//                        onClick = { /* Follow action */ },
-//                        colors = ButtonDefaults.buttonColors(
-//                            containerColor = Color(0xFF0095F6)
-//                        ),
-//                        modifier = Modifier
-//                            .height(28.dp)
-//                            .width(70.dp),
-//                        shape = RoundedCornerShape(4.dp)
-//                    ) {
-//                        Text(
-//                            text = "Follow",
-//                            fontSize = 12.sp,
-//                            fontWeight = FontWeight.Bold
-//                        )
-//                    }
-//                }
-//
-//                // LIKE/COMMENT/MENTION: Small post thumbnail
-//                Notification.NotificationType.LIKE,
-//                Notification.NotificationType.COMMENT,
-//                Notification.NotificationType.MENTION,
-//                Notification.NotificationType.NEW_POST -> {
-//                    if (notification.postImage != null) {
-//                        AsyncImage(
-//                            model = notification.postImage,
-//                            contentDescription = "Post",
-//                            modifier = Modifier
-//                                .size(44.dp)
-//                                .clip(RoundedCornerShape(4.dp))
-//                        )
-//                    }
-//                }
-//
-//                // FOLLOW ACCEPTED: Forward arrow
-//                Notification.NotificationType.FOLLOW_ACCEPTED -> {
-//                    Icon(
-//                        imageVector = Icons.Default.ArrowForwardIos,
-//                        contentDescription = "View",
-//                        tint = Color.Gray,
-//                        modifier = Modifier.size(16.dp)
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//// Helper function to format time
-//@Composable
-//fun formatTimeAgo(timestamp: Date): String {
-//    val now = Date()
-//    val diff = now.time - timestamp.time
-//    val minutes = diff / (1000 * 60)
-//    val hours = diff / (1000 * 60 * 60)
-//    val days = diff / (1000 * 60 * 60 * 24)
-//
-//    return when {
-//        minutes < 1 -> "Just now"
-//        minutes < 60 -> "${minutes}m ago"
-//        hours < 24 -> "${hours}h ago"
-//        days < 7 -> "${days}d ago"
-//        else -> "${days / 7}w ago"
-//    }
-//}
-
 @Composable
 fun NotificationItem(
     notification: Notification,
@@ -409,7 +349,7 @@ fun NotificationItem(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Profile image or icon
+            // Profile image or icon - UPDATE THIS SECTION
             when (notification.type) {
                 Notification.NotificationType.FOLLOW_REQUEST -> {
                     Box(
@@ -459,6 +399,22 @@ fun NotificationItem(
                         )
                     }
                 }
+                Notification.NotificationType.LIVE_STREAM -> { // ADD THIS CASE
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(Color.Red), // Red for live indicator
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Videocam,
+                            contentDescription = "Live stream",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
                 else -> {
                     AsyncImage(
                         model = notification.userProfileImage ?: "https://picsum.photos/id/${notification.id.hashCode() % 100}/200/200",
@@ -494,6 +450,24 @@ fun NotificationItem(
                                 .background(Color(0xFF0095F6))
                         )
                     }
+
+                    // ADD LIVE BADGE for live stream notifications
+                    if (notification.type == Notification.NotificationType.LIVE_STREAM) {
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.Red)
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "LIVE",
+                                color = Color.White,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
 
                 Text(
@@ -511,7 +485,9 @@ fun NotificationItem(
                 )
             }
 
-            // Right side content
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Right side content - UPDATE THIS SECTION
             when {
                 // Forward arrow for follow requests
                 notification.type == Notification.NotificationType.FOLLOW_REQUEST -> {
@@ -522,7 +498,7 @@ fun NotificationItem(
                         modifier = Modifier.size(16.dp)
                     )
                 }
-                // Follow button for suggested friends - FIXED: Now at far right
+                // Follow button for suggested friends
                 notification.type == Notification.NotificationType.SUGGESTED_FRIEND -> {
                     Button(
                         onClick = { /* Follow action */ },
@@ -542,6 +518,27 @@ fun NotificationItem(
                         )
                     }
                 }
+                // Watch button for live streams - ADD THIS
+                notification.type == Notification.NotificationType.LIVE_STREAM -> {
+                    Button(
+                        onClick = { /* Navigate to live stream */ },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        ),
+                        modifier = Modifier
+                            .height(32.dp)
+                            .width(88.dp),
+                        shape = RoundedCornerShape(4.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = "Watch",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
                 // Post image for likes/comments/mentions
                 notification.postImage != null && notification.type != Notification.NotificationType.SUGGESTED_FRIEND -> {
                     AsyncImage(
@@ -552,10 +549,190 @@ fun NotificationItem(
                             .clip(RoundedCornerShape(4.dp))
                     )
                 }
+                // For other notifications, just show a small arrow if needed
+                else -> {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForwardIos,
+                        contentDescription = "View",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
             }
         }
     }
 }
+
+
+
+//@Composable
+//fun NotificationItem(
+//    notification: Notification,
+//    onClick: () -> Unit
+//) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable(onClick = onClick)
+//            .padding(horizontal = 8.dp, vertical = 4.dp),
+//        colors = CardDefaults.cardColors(
+//            containerColor = Color.White
+//        ),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(horizontal = 16.dp, vertical = 12.dp),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            // Profile image or icon
+//            when (notification.type) {
+//                Notification.NotificationType.FOLLOW_REQUEST -> {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(44.dp)
+//                            .clip(CircleShape)
+//                            .background(Color(0xFF0095F6)),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.PersonAdd,
+//                            contentDescription = "Follow request",
+//                            tint = Color.White,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
+//                }
+//                Notification.NotificationType.LIKE -> {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(44.dp)
+//                            .clip(CircleShape)
+//                            .background(Color(0xFFED4956)),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.FavoriteBorder,
+//                            contentDescription = "Like",
+//                            tint = Color.White,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
+//                }
+//                Notification.NotificationType.COMMENT -> {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(44.dp)
+//                            .clip(CircleShape)
+//                            .background(Color(0xFF8E8E8E)),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.ChatBubbleOutline,
+//                            contentDescription = "Comment",
+//                            tint = Color.White,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
+//                }
+//                else -> {
+//                    AsyncImage(
+//                        model = notification.userProfileImage ?: "https://picsum.photos/id/${notification.id.hashCode() % 100}/200/200",
+//                        contentDescription = "Profile",
+//                        modifier = Modifier
+//                            .size(44.dp)
+//                            .clip(CircleShape)
+//                    )
+//                }
+//            }
+//
+//            Spacer(modifier = Modifier.width(12.dp))
+//
+//            // Notification content
+//            Column(
+//                modifier = Modifier.weight(1f)
+//            ) {
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Text(
+//                        text = notification.title,
+//                        fontWeight = FontWeight.SemiBold,
+//                        fontSize = 14.sp,
+//                        color = Color.Black
+//                    )
+//
+//                    // Add blue dot for unread notifications
+//                    if (!notification.isRead) {
+//                        Box(
+//                            modifier = Modifier
+//                                .padding(start = 4.dp)
+//                                .size(8.dp)
+//                                .clip(CircleShape)
+//                                .background(Color(0xFF0095F6))
+//                        )
+//                    }
+//                }
+//
+//                Text(
+//                    text = notification.message,
+//                    color = Color.Gray,
+//                    fontSize = 13.sp,
+//                    modifier = Modifier.padding(top = 2.dp)
+//                )
+//
+//                Text(
+//                    text = formatTimeAgo(notification.timestamp),
+//                    color = Color.LightGray,
+//                    fontSize = 11.sp,
+//                    modifier = Modifier.padding(top = 4.dp)
+//                )
+//            }
+//
+//            // Right side content
+//            when {
+//                // Forward arrow for follow requests
+//                notification.type == Notification.NotificationType.FOLLOW_REQUEST -> {
+//                    Icon(
+//                        imageVector = Icons.Filled.ArrowForwardIos,
+//                        contentDescription = "View requests",
+//                        tint = Color.Gray,
+//                        modifier = Modifier.size(16.dp)
+//                    )
+//                }
+//                // Follow button for suggested friends - FIXED: Now at far right
+//                notification.type == Notification.NotificationType.SUGGESTED_FRIEND -> {
+//                    Button(
+//                        onClick = { /* Follow action */ },
+//                        colors = ButtonDefaults.buttonColors(
+//                            containerColor = Color(0xFF0095F6)
+//                        ),
+//                        modifier = Modifier
+//                            .height(32.dp)
+//                            .width(88.dp),
+//                        shape = RoundedCornerShape(4.dp),
+//                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+//                    ) {
+//                        Text(
+//                            text = "Follow",
+//                            fontSize = 12.sp,
+//                            fontWeight = FontWeight.Bold
+//                        )
+//                    }
+//                }
+//                // Post image for likes/comments/mentions
+//                notification.postImage != null && notification.type != Notification.NotificationType.SUGGESTED_FRIEND -> {
+//                    AsyncImage(
+//                        model = notification.postImage,
+//                        contentDescription = "Post",
+//                        modifier = Modifier
+//                            .size(44.dp)
+//                            .clip(RoundedCornerShape(4.dp))
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 @Composable
 fun formatTimeAgo(timestamp: Date): String {
     val now = Date()

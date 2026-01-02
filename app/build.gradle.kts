@@ -79,8 +79,7 @@ dependencies {
 
     // firebase-messaging
     implementation(libs.firebase.messaging)
-    // implementation(libs.firebase.messaging.ktx)
-    // implementation("com.google.firebase:firebase-messaging")
+
     //Coil
     implementation(libs.coil.compose)
 
@@ -109,9 +108,12 @@ dependencies {
     // Accompanist
     implementation (libs.accompanist.permissions)
 
-    // Timber
-//    implementation(libs.timber)
+    // RTMP Streaming library
+    implementation(libs.rtplibrary)
 
+    // Optional: For ExoPlayer if you need playback
+    implementation(libs.exoplayer)
+    implementation(libs.extension.rtmp)
     // Camera and permissions
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)

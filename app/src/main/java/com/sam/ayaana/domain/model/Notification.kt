@@ -25,7 +25,8 @@ data class Notification(
         LIKE,
         COMMENT,
         MENTION,
-        SUGGESTED_FRIEND
+        SUGGESTED_FRIEND,
+        LIVE_STREAM
     }
 
     enum class TimeGroup {

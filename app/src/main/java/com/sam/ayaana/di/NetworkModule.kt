@@ -3,6 +3,7 @@ package com.sam.ayaana.di
 import com.sam.ayaana.data.remote.api.ActivityApi
 import com.sam.ayaana.data.remote.api.AuthApi
 import com.sam.ayaana.data.remote.api.ChatApi
+import com.sam.ayaana.data.remote.api.LiveStreamApi
 import com.sam.ayaana.data.remote.api.NotificationsApi
 import com.sam.ayaana.data.remote.api.PostApi
 import com.sam.ayaana.data.remote.api.UserApi
@@ -88,5 +89,11 @@ object NetworkModule {
         return Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLiveStreamApi(retrofit: Retrofit): LiveStreamApi {
+        return retrofit.create(LiveStreamApi::class.java)
     }
 }

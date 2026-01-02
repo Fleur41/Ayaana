@@ -27,6 +27,8 @@ import com.sam.ayaana.presentation.screens.chat.ChatListScreen
 import com.sam.ayaana.presentation.screens.create.CreatePostScreen
 import com.sam.ayaana.presentation.screens.hashtag.HashtagScreen
 import com.sam.ayaana.presentation.screens.home.HomeScreen
+import com.sam.ayaana.presentation.screens.livestream.LiveStreamScreen
+import com.sam.ayaana.presentation.screens.liveviewer.LiveViewerScreen
 import com.sam.ayaana.presentation.screens.menu.MenuScreen
 import com.sam.ayaana.presentation.screens.notifications.FollowRequestsScreen
 import com.sam.ayaana.presentation.screens.notifications.NotificationsScreen
@@ -351,6 +353,52 @@ fun AppNavigation(
                 navController = navController,
                 viewModel = hiltViewModel(backStackEntry)
             )
+        }
+
+        // LiveStreamScreen
+        composable(
+            route = NavigationDestination.LiveStream.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) { backStackEntry ->
+            LiveStreamScreen(
+                navController = navController,
+                viewModel = hiltViewModel(backStackEntry)
+            )
+        }
+
+
+        // LiveViewerScreen
+        composable(
+            route = NavigationDestination.LiveViewer.routeWithArgs,
+            arguments = listOf(
+                navArgument(NavigationDestination.LiveViewer.streamIdArg) {
+                    type = NavType.StringType
+                }
+            ),
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) { backStackEntry ->
+            val streamId = backStackEntry.arguments?.getString(NavigationDestination.LiveViewer.streamIdArg) ?: ""
+            LiveViewerScreen(
+                navController = navController,
+                streamId = streamId,
+                viewModel = hiltViewModel(backStackEntry)
+            )
+        }
+
+        // Also update the CreateLive destination to navigate to LiveStream:
+        composable(
+            route = NavigationDestination.CreateLive.route,
+            // enterTransition = { slideIntoContainerAnimation(towards = SlideDirection.Right) },
+            // exitTransition = { slideOutOfContainerAnimation(towards = SlideDirection.Left) }
+        ) {
+            // Navigate to LiveStreamScreen instead of showing placeholder
+            navController.navigate(NavigationDestination.LiveStream.route) {
+                popUpTo(NavigationDestination.CreateLive.route) {
+                    inclusive = true
+                }
+            }
         }
     }
 }

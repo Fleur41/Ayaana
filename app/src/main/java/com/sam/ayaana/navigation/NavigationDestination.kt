@@ -175,12 +175,12 @@ sealed interface NavigationDestination {
             get() = "followRequests"
     }
 
-    data object NotificationsFeed : NavigationDestination {
-        override val title: String
-            get() = "Notifications"
-        override val route: String
-            get() = "notifications_feed"
-    }
+//    data object NotificationsFeed : NavigationDestination {
+//        override val title: String
+//            get() = "Notifications"
+//        override val route: String
+//            get() = "notifications_feed"
+//    }
 
     data object NotificationsSettings : NavigationDestination {
         override val title: String
@@ -201,5 +201,23 @@ sealed interface NavigationDestination {
 
         // Helper function to create navigation route
         fun createRoute(reelId: String): String = "$route/$reelId"
+    }
+
+    data object LiveStream : NavigationDestination {
+        override val title: String
+            get() = "Go Live"
+        override val route: String
+            get() = "live_stream"
+    }
+
+    data object LiveViewer : NavigationDestination {
+        override val title: String
+            get() = "Live Stream"
+        override val route: String
+            get() = "live_viewer"
+        const val streamIdArg = "streamId"
+        val routeWithArgs = "$route/{$streamIdArg}"
+
+        fun createRoute(streamId: String): String = "$route/$streamId"
     }
 }
